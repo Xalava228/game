@@ -1,0 +1,43 @@
+# Unity-generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Asset Store tools
+/[Aa]ssets/AssetStoreTools*
+
+# IDEs and editors
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Crash reports and temporary exports
+sysinfo.txt
+*.tmp
+*.bak
+*.unitypackage
+
+# Do not ignore Unity .meta files: they preserve asset identity.
