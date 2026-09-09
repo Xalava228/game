@@ -4,7 +4,7 @@ const {Resvg}=require('D:/Game/Work/tools/node_modules/@resvg/resvg-js');
 const root=path.resolve(__dirname,'../game/Assets/TimeThief/Resources/Art');
 const src=path.resolve(__dirname,'../assets/vector');fs.mkdirSync(src,{recursive:true});
 function svg(w,h,body){return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="gold" x2=".2" y2="1"><stop stop-color="#ffe9a1"/><stop offset="1" stop-color="#e8a344"/></linearGradient><linearGradient id="coat" x2=".8" y2="1"><stop stop-color="#525080"/><stop offset="1" stop-color="#262b49"/></linearGradient><linearGradient id="mint" x2="0" y2="1"><stop stop-color="#a4f2dc"/><stop offset="1" stop-color="#4cafaa"/></linearGradient><radialGradient id="glow"><stop stop-color="#fff8da"/><stop offset="1" stop-color="#f3e4c9"/></radialGradient></defs>${body}</svg>`;}
-function write(n,w,h,b){let s=svg(w,h,b);fs.writeFileSync(path.join(src,n+'.svg'),s);fs.writeFileSync(path.join(root,n+'.png'),new Resvg(s).render().asPng());}
+function write(n,w,h,b){let s=svg(w,h,b);fs.writeFileSync(path.join(src,n+'.svg'),s);const painted=path.resolve(__dirname,'../assets/raster/'+n+'.png');if(fs.existsSync(painted))fs.copyFileSync(painted,path.join(root,n+'.png'));else fs.writeFileSync(path.join(root,n+'.png'),new Resvg(s).render().asPng());}
 const ink='#292d46',cream='#fff3d8',gold='#eeb867';
 const P=(d,fill=ink,stroke=ink,sw=4)=>`<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
 const E=(x,y,rx,ry,fill)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${fill}"/>`;
@@ -39,5 +39,5 @@ write('arena',1920,1080,`<rect width="1920" height="1080" fill="#f7f1e5"/><path 
 write('logo',256,256,`<rect width="256" height="256" rx="55" fill="${ink}"/>${C(128,128,95,'none',gold,3)}${hour(128,129,2.35)}${star(49,77,.8,'#9ce4ce')}${star(207,180,.8,'#9ce4ce')}`);
 console.log('Created original SVG sources and '+(Object.keys(icons).length+12)+' Unity art assets.');
 
-// The supplied logo takes precedence over the original placeholder.
-fs.copyFileSync(path.resolve(__dirname,"../assets/reference/hourglass-logo.png"),path.join(root,"logo.png"));
+// The production UI mark takes precedence over archived concepts.
+require('./ui-art.cjs');

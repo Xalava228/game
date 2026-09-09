@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &227352946
+--- !u!1 &484900801
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,9 +127,121 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 227352949}
-  - component: {fileID: 227352948}
-  - component: {fileID: 227352947}
+  - component: {fileID: 484900803}
+  - component: {fileID: 484900802}
+  m_Layer: 0
+  m_Name: TimeThief
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &484900802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484900801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fc335bb00e9cbd4587371b11495b487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TimeThief.GameManager
+  config: {fileID: 11400000, guid: edbd140dc1e3676428c37fa5dccb2d59, type: 2}
+  player:
+    CurrentTime: 5
+    MaxTime: 5
+    Attack: 1
+    CritChance: 0.05
+    CritMultiplier: 2
+    Armor: 0
+    MagicResistance: 0
+  shop:
+    shards: 0
+    maxTimePurchases: 0
+    attackPurchases: 0
+    buffs: []
+  ui: {fileID: 0}
+  music: {fileID: 0}
+  platform: {fileID: 0}
+  save:
+    version: 1
+    bestLevel: 0
+    totalEnemiesDefeated: 0
+    totalBossesDefeated: 0
+    seed: 0
+    level: 1
+    defeated: 0
+    lastReward: 0
+    activeRun: 0
+    reviveUsed: 0
+    rewardDoubled: 0
+    bossPhase2: 0
+    phase: Intro
+    player:
+      CurrentTime: 5
+      MaxTime: 5
+      Attack: 1
+      CritChance: 0.05
+      CritMultiplier: 2
+      Armor: 0
+      MagicResistance: 0
+    lastGift:
+      stat: 0
+      amount: 0
+      percent: 0
+    lastGrowth: []
+    shop:
+      shards: 0
+      maxTimePurchases: 0
+      attackPurchases: 0
+      buffs: []
+    enemyTime: 0
+    enemyTimer: 0
+    elapsed: 0
+    enemyAttacks: 0
+    physicalHits: 0
+    updatedAt: 0
+  state: 0
+  level: 1
+  seed: 0
+  defeated: 0
+  lastReward: 0
+  reviveUsed: 0
+  rewardDoubled: 0
+  rewards: []
+  miniReward:
+    stat: 0
+    amount: 0
+    percent: 0
+  English: 0
+--- !u!4 &484900803
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484900801}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1662315837
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1662315840}
+  - component: {fileID: 1662315839}
+  - component: {fileID: 1662315838}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -137,21 +249,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &227352947
+--- !u!81 &1662315838
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 227352946}
+  m_GameObject: {fileID: 1662315837}
   m_Enabled: 1
---- !u!20 &227352948
+--- !u!20 &1662315839
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 227352946}
+  m_GameObject: {fileID: 1662315837}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
@@ -196,124 +308,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &227352949
+--- !u!4 &1662315840
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 227352946}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &469427152
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 469427154}
-  - component: {fileID: 469427153}
-  m_Layer: 0
-  m_Name: TimeThief
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &469427153
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 469427152}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fc335bb00e9cbd4587371b11495b487, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TimeThief.GameManager
-  config: {fileID: 11400000, guid: edbd140dc1e3676428c37fa5dccb2d59, type: 2}
-  player:
-    CurrentTime: 5
-    MaxTime: 5
-    Attack: 1
-    CritChance: 0.05
-    CritMultiplier: 2
-    Armor: 0
-    MagicResistance: 0
-  shop:
-    shards: 0
-    maxTimePurchases: 0
-    attackPurchases: 0
-    buffs: []
-  ui: {fileID: 0}
-  music: {fileID: 0}
-  platform: {fileID: 0}
-  save:
-    version: 1
-    bestLevel: 0
-    totalEnemiesDefeated: 0
-    totalBossesDefeated: 0
-    seed: 0
-    level: 1
-    defeated: 0
-    lastReward: 0
-    activeRun: 0
-    reviveUsed: 0
-    rewardDoubled: 0
-    phase: Intro
-    player:
-      CurrentTime: 5
-      MaxTime: 5
-      Attack: 1
-      CritChance: 0.05
-      CritMultiplier: 2
-      Armor: 0
-      MagicResistance: 0
-    lastGift:
-      stat: 0
-      amount: 0
-      percent: 0
-    lastGrowth: []
-    shop:
-      shards: 0
-      maxTimePurchases: 0
-      attackPurchases: 0
-      buffs: []
-    enemyTime: 0
-    enemyTimer: 0
-    elapsed: 0
-    enemyAttacks: 0
-    physicalHits: 0
-    updatedAt: 0
-  state: 0
-  level: 1
-  seed: 0
-  defeated: 0
-  lastReward: 0
-  reviveUsed: 0
-  rewardDoubled: 0
-  rewards: []
-  miniReward:
-    stat: 0
-    amount: 0
-    percent: 0
-  English: 0
---- !u!4 &469427154
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 469427152}
+  m_GameObject: {fileID: 1662315837}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -326,5 +327,5 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 227352949}
-  - {fileID: 469427154}
+  - {fileID: 1662315840}
+  - {fileID: 484900803}

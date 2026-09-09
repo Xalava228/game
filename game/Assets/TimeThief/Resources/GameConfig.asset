@@ -30,6 +30,13 @@ MonoBehaviour:
   playerRecoveryFraction: 0.6
   sameTypeResistance: 0.9
   continuousDrain: 1
+  minimumTapInterval: 0.12
+  bossPhaseRecoveryFactor: 0.75
+  timePressure: 0.1
+  timeCurve: 0.003
+  powerPressure: 0.07
+  powerCurve: 0.001
+  cooldownPressure: 0.2
   baseEnemyTime: 3
   timePerLevel: 0.18
   timePerSqrtLevel: 0.6

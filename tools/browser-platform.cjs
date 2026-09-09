@@ -12,7 +12,7 @@ const fs=require('fs'),assert=require('assert'),{chromium}=require('D:/Game/Work
  try{
  await page.goto('http://platform.test:8080');await page.waitForFunction(()=>window.TimeThiefSDK?.unity&&TimeThiefSDK.readyCalled,null,{timeout:120000});await page.waitForTimeout(800);
  check(await page.evaluate(()=>__platform.ready===1&&__platform.start===0),'Game Ready once; menu does not report gameplay');
- await click(448,639);await click(1050,809,60);let a=await save();await page.waitForTimeout(250);let b=await save();
+ await click(448,639);await click(1046,801,60);let a=await save();await page.waitForTimeout(250);let b=await save();
  check(Math.abs((b.enemyTime-a.enemyTime)-(a.player.CurrentTime-b.player.CurrentTime))<.01,'real player transfers every elapsed second to enemy');
  await page.evaluate(()=>__platform.events.game_api_pause());a=await save();await page.waitForTimeout(450);b=await save();
  check(a.player.CurrentTime===b.player.CurrentTime&&await page.evaluate(()=>!TimeThiefSDK.playing),'platform event pauses Unity and Gameplay API');

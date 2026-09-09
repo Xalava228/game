@@ -8,7 +8,7 @@ namespace TimeThief
     public sealed class SaveData
     {
         public int version = 1, bestLevel, totalEnemiesDefeated, totalBossesDefeated, seed, level = 1, defeated, lastReward;
-        public bool activeRun, reviveUsed, rewardDoubled;
+        public bool activeRun, reviveUsed, rewardDoubled, bossPhase2;
         public string phase = "Intro";
         public PlayerStats player;
         public Reward lastGift;

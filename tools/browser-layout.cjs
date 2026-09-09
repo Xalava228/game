@@ -13,7 +13,7 @@ for(const [width,height] of sizes){await page.setViewportSize({width,height});aw
 await page.evaluate(()=>TimeThiefSDK.unity.SendMessage('TimeThief','Persist'));await page.waitForTimeout(100);const base=await page.evaluate(()=>JSON.parse(TimeThiefSDK.saved));
 await page.addInitScript(()=>{if(window.name.startsWith('TT_FIXTURE:')){localStorage.setItem('TimeThiefSaveV1',window.name.slice(11));window.name='';}});
 const fixture={...base,level:250,phase:'Intro',enemyTime:100,enemyTimer:3,player:{...base.player,CurrentTime:100,MaxTime:100},updatedAt:Date.now()};
-await page.evaluate(f=>window.name='TT_FIXTURE:'+JSON.stringify(f),fixture);await page.setViewportSize({width:390,height:844});await page.reload();await ready();await click(.5,.59);await page.screenshot({path:__dirname+'/../QA/21-last-boss-mobile.png'});
+await page.evaluate(f=>window.name='TT_FIXTURE:'+JSON.stringify(f),fixture);await page.setViewportSize({width:390,height:844});await page.reload();await ready();await click(.5,.708);await page.screenshot({path:__dirname+'/../QA/21-last-boss-mobile.png'});
 await page.setViewportSize({width:1600,height:900});await page.waitForTimeout(350);await page.screenshot({path:__dirname+'/../QA/22-last-boss-desktop.png'});
 assert(errors.length===0,errors.join('\n'));checks++;fs.writeFileSync(__dirname+'/../QA/layout-checks.txt',checks+' WebGL layout checks passed: 320x568, 360x640, 390x844, 844x390, 1024x768, 2560x1080. Screenshots visually inspected separately.\n');console.log(checks+' layout checks passed.');
 }finally{await browser.close();}

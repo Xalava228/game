@@ -125,6 +125,7 @@ namespace TimeThief
             enemy.elapsed = Mathf.Max(0, save.elapsed);
             enemy.attackCount = save.enemyAttacks;
             enemy.physicalHits = save.physicalHits;
+            enemy.bossPhase2 = save.bossPhase2;
             if (save.phase == "Victory")
             {
                 SetState(GameState.Victory);
@@ -405,6 +406,7 @@ namespace TimeThief
                 save.elapsed = enemy.elapsed;
                 save.enemyAttacks = enemy.attackCount;
                 save.physicalHits = enemy.physicalHits;
+                save.bossPhase2 = enemy.bossPhase2;
             }
 
             SaveManager.Write(save);

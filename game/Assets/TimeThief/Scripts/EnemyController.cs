@@ -7,6 +7,8 @@ namespace TimeThief
         public Encounter data;
         public float time, timer, elapsed, holdSeconds;
         public int attackCount, physicalHits;
+        public bool bossPhase2;
+        float nextTap;
         readonly GameManager game;
         public bool Telegraph => timer <= game.config.telegraphDuration;
         public EnemyController(GameManager g, Encounter d)
@@ -23,13 +25,14 @@ namespace TimeThief
             get
             {
                 bool magic = data.attackType == AttackType.Magic;
+                if (bossPhase2) magic = !magic;
                 if (data.ability == Ability.SwitchDefense && Mathf.FloorToInt(elapsed / 4) % 2 == 1) magic = !magic;
                 if (data.ability == Ability.MagicSurge && (attackCount + 1) % 3 == 0) magic = !magic;
                 return magic;
             }
         }
         public float FlowRate => game.config.continuousDrain * (data.condition == BattleCondition.QuickSand ? 1.2f : data.condition == BattleCondition.SlowGlass ? .85f : 1);
-        public float RecoveryFraction => data.condition == BattleCondition.FrayedTime ? .45f : data.condition == BattleCondition.Abundance ? .75f : game.config.playerRecoveryFraction;
+        public float RecoveryFraction => (data.condition == BattleCondition.FrayedTime ? .45f : data.condition == BattleCondition.Abundance ? .75f : game.config.playerRecoveryFraction) * (bossPhase2 ? game.config.bossPhaseRecoveryFactor : 1);
         public float DrainPlayer(float amount)
         {
             float taken = game.player.LoseTime(amount);
@@ -48,6 +51,7 @@ namespace TimeThief
             {
                 Attack();
                 float speed = data.Has(Modifier.Fast) ? .85f : 1;
+                if (bossPhase2) speed *= .9f;
                 if (data.Has(Modifier.Fury) && time < data.maxTime * .3f)
                     speed *= .75f;
                 if (data.ability == Ability.Accelerate)
@@ -75,6 +79,8 @@ namespace TimeThief
         {
             if (!game.IsFighting)
                 return;
+            if (!magic && elapsed < nextTap) return;
+            if (!magic) nextTap = elapsed + game.config.minimumTapInterval;
             bool crit = !magic && Random.value < Mathf.Min(.9f, game.player.CritChance + (game.shop.Has(BuffType.Critical) ? .15f : 0));
             float power = game.player.Attack * (magic ? game.config.magicStealPerSecond * dt : game.config.physicalSteal);
             if ((magic && data.condition == BattleCondition.ArcaneMist) || (!magic && data.condition == BattleCondition.SteelEcho)) power *= 1.25f;
@@ -99,6 +105,13 @@ namespace TimeThief
                 return;
             }
 
+            if (data.type == EncounterType.Boss && !bossPhase2 && time <= data.maxTime * .5f)
+            {
+                bossPhase2 = true;
+                timer = Mathf.Max(timer, .85f);
+                game.ui.BossPhase();
+            }
+
             if (!magic && (data.Has(Modifier.Thorny) || data.ability == Ability.Thorns) && physicalHits % 4 == 0)
             {
                 float reflected = DrainPlayer(Mathf.Min(.35f, game.player.MaxTime * .06f));
@@ -108,28 +121,34 @@ namespace TimeThief
             }
         }
 
+        public float NextStrikeDamage
+        {
+            get
+            {
+                bool magic = UsesMagic;
+                float power = data.power * (bossPhase2 ? 1.15f : 1);
+                if (data.ability == Ability.HeavyStrike && (attackCount + 1) % 3 == 0) power *= 1.5f;
+                float defense = magic ? game.player.MagicResistance : game.player.Armor;
+                if (game.shop.Has(magic ? BuffType.Resistance : BuffType.Armor)) defense = defense * 1.3f + 3;
+                if (data.condition == BattleCondition.BrittleGuard) defense *= .65f;
+                float damage = PlayerStats.Reduced(power, defense, magic ? game.config.resistanceConstant : game.config.armorConstant);
+                if (data.Has(Modifier.Vampire) || data.ability == Ability.Leech) damage *= 1.2f;
+                if (data.Has(Modifier.Heavy)) damage *= 1.1f;
+                return damage;
+            }
+        }
+
         void Attack()
         {
-            if (!game.IsFighting)
-                return;
+            if (!game.IsFighting) return;
             bool magic = UsesMagic;
+            bool heavy = data.ability == Ability.HeavyStrike && (attackCount + 1) % 3 == 0;
+            float damage = NextStrikeDamage;
             attackCount++;
-            float p = data.power;
-            bool heavy = data.ability == Ability.HeavyStrike && attackCount % 3 == 0;
-            if (heavy)
-                p *= 1.5f;
-            float defense = magic ? game.player.MagicResistance : game.player.Armor;
-            if (game.shop.Has(magic ? BuffType.Resistance : BuffType.Armor))
-                defense = defense * 1.3f + 3;
-            if (data.condition == BattleCondition.BrittleGuard) defense *= .65f;
-            float damage = PlayerStats.Reduced(p, defense, magic ? game.config.resistanceConstant : game.config.armorConstant);
-            if (data.Has(Modifier.Vampire) || data.ability == Ability.Leech) damage *= 1.2f;
-            if (data.Has(Modifier.Heavy)) damage *= 1.1f;
             float taken = DrainPlayer(damage);
             game.ui.EnemyHit(taken, magic, heavy);
             game.music.Sfx(magic ? game.config.enemyMagicAttackSound : game.config.enemyPhysicalAttackSound);
-            if (game.player.CurrentTime <= 0)
-                game.Lose();
+            if (game.player.CurrentTime <= 0) game.Lose();
         }
     }
 }

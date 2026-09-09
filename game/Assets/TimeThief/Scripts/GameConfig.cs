@@ -103,6 +103,10 @@ namespace TimeThief
         [Range(0, 1)] public float playerRecoveryFraction = .6f;
         [Range(0, .99f)] public float sameTypeResistance = .9f;
         public float continuousDrain = 1f;
+        public float minimumTapInterval = .12f;
+        [Range(.1f, 1)] public float bossPhaseRecoveryFactor = .75f;
+        [Header("Late-run pressure after the five tutorial encounters")]
+        public float timePressure = .10f, timeCurve = .003f, powerPressure = .07f, powerCurve = .001f, cooldownPressure = .20f;
         [Header("Enemy scaling")]
         public float baseEnemyTime = 3, timePerLevel = .18f, timePerSqrtLevel = .6f, baseEnemyPower = .25f, powerPerLevel = .008f, powerPerSqrtLevel = .12f, baseCooldown = 4.5f, cooldownDecay = .22f;
         [Header("Growth after every victory")]

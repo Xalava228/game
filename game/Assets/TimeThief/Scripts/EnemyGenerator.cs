@@ -51,6 +51,7 @@ namespace TimeThief
             level = Mathf.Max(1, level);
             var random = new System.Random(unchecked(seed + level * 7919));
             float step = level - 1, root = Mathf.Sqrt(step);
+            float pressure = Mathf.Max(0, level - 5);
             var template = c.enemies[TemplateIndex(c, level, seed)];
             var type = TypeAt(level);
             var e = new Encounter
@@ -58,9 +59,9 @@ namespace TimeThief
                 level = level, type = type, nameRu = template.nameRu, nameEn = template.nameEn,
                 artKey = template.artKey, sprite = template.enemySprite, attackType = template.attackType,
                 ability = level <= 5 ? Ability.None : template.ability, abilityValues = new Vector3(6, .3f, 1.5f),
-                maxTime = c.baseEnemyTime + step * c.timePerLevel + root * c.timePerSqrtLevel,
-                power = c.baseEnemyPower + step * c.powerPerLevel + root * c.powerPerSqrtLevel,
-                cooldown = Mathf.Max(c.minimumCooldown, c.baseCooldown - Mathf.Log(level) * c.cooldownDecay),
+                maxTime = c.baseEnemyTime + step * c.timePerLevel + root * c.timePerSqrtLevel + pressure * c.timePressure + Mathf.Pow(pressure, 1.65f) * c.timeCurve,
+                power = c.baseEnemyPower + step * c.powerPerLevel + root * c.powerPerSqrtLevel + pressure * c.powerPressure + pressure * pressure * c.powerCurve,
+                cooldown = Mathf.Max(c.minimumCooldown, c.baseCooldown - Mathf.Log(level) * c.cooldownDecay - Mathf.Log(1 + pressure / 20) * c.cooldownPressure),
                 budget = Mathf.Log(level + 1, 2),
                 condition = level <= 5 ? BattleCondition.QuietHour : (BattleCondition)random.Next(8)
             };

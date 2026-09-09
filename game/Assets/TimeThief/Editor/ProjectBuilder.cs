@@ -45,10 +45,12 @@ namespace TimeThief.Editor
                 t.textureType = TextureImporterType.Sprite;
                 t.spriteImportMode = SpriteImportMode.Single;
                 t.alphaIsTransparency = true;
-                t.mipmapEnabled = false;
+                bool painted = File.Exists("../assets/raster/" + Path.GetFileName(file));
+                t.mipmapEnabled = painted;
+                t.isReadable = false;
                 t.textureCompression = TextureImporterCompression.Uncompressed;
-                t.maxTextureSize = 2048;
-                t.filterMode = FilterMode.Bilinear;
+                t.maxTextureSize = painted ? (Path.GetFileName(file).StartsWith("boss-") || file.EndsWith("witch.png") ? 1024 : 512) : 2048;
+                t.filterMode = painted ? FilterMode.Trilinear : FilterMode.Bilinear;
                 if (file.EndsWith("panel.png"))
                     t.spriteBorder = new Vector4(24, 24, 24, 24);
                 t.SaveAndReimport();
@@ -181,7 +183,7 @@ namespace TimeThief.Editor
             }
             PlayerSettings.companyName = "Xalava";
             PlayerSettings.productName = "TimeThief";
-            PlayerSettings.bundleVersion = "1.1.0";
+            PlayerSettings.bundleVersion = "1.2.0";
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.colorSpace = ColorSpace.Gamma;
             PlayerSettings.defaultScreenWidth = 1600;
