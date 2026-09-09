@@ -4,21 +4,22 @@
  const key='TimeThiefSaveV1';
  const api=window.TimeThiefSDK={sdk:null,player:null,unity:null,saved:'',lang:'ru',adBusy:false,readyCalled:false,playing:false,wantsPlay:false,cloudReady:false};
  const pauses=new Set();let cloudTimer=null,pendingCloud=false;
+ async function bounded(promise,ms){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('SDK operation timed out')),ms);})]);}finally{clearTimeout(timer);}}
  const send=(name,value)=>api.unity?.SendMessage('TimeThief',name,value);
  function sync(){const paused=pauses.size>0;send('OnPlatformPause',paused?'1':'0');const shouldPlay=api.wantsPlay&&!paused&&!api.adBusy;if(shouldPlay===api.playing)return;api.playing=shouldPlay;try{api.sdk?.features?.GameplayAPI?.[shouldPlay?'start':'stop']();}catch(e){console.warn('Gameplay reporting unavailable',e);}}
  function pause(reason,value){if(value)pauses.add(reason);else pauses.delete(reason);sync();}
  api.attach=instance=>{api.unity=instance;sync();};
  function valid(text){try{const s=JSON.parse(text);return s&&s.version===1&&Number.isFinite(s.updatedAt)?s:null;}catch{return null;}}
- async function cloudSave(){cloudTimer=null;if(!api.player||!api.cloudReady||!pendingCloud)return;pendingCloud=false;try{await api.player.setData({timeThief:JSON.parse(api.saved)});}catch(e){pendingCloud=true;console.warn('Cloud save deferred',e);}}
+ async function cloudSave(){cloudTimer=null;if(!api.player||!api.cloudReady||!pendingCloud)return;pendingCloud=false;try{await api.player.setData({timeThief:JSON.parse(api.saved)},true);}catch(e){pendingCloud=true;console.warn('Cloud save deferred',e);}}
  api.init=async()=>{
   try{api.saved=localStorage.getItem(key)||'';}catch{}
   const local=location.hostname==='localhost'||location.hostname==='127.0.0.1';
   if(local){api.lang=new URLSearchParams(location.search).get('lang')==='en'?'en':'ru';return;}
   try{
-   await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='/sdk.js';s.onload=resolve;s.onerror=reject;document.head.append(s);});
-   api.sdk=await YaGames.init();api.lang=api.sdk.environment?.i18n?.lang==='ru'?'ru':'en';
+   await bounded(new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='/sdk.js';s.onload=resolve;s.onerror=reject;document.head.append(s);}),12000);
+   api.sdk=await bounded(YaGames.init(),12000);api.lang=api.sdk.environment?.i18n?.lang==='ru'?'ru':'en';
    api.sdk.on('game_api_pause',()=>pause('platform',true));api.sdk.on('game_api_resume',()=>pause('platform',false));
-   try{api.player=await api.sdk.getPlayer();const cloud=await api.player.getData(['timeThief']);const c=cloud?.timeThief,l=valid(api.saved);if(c?.version===1&&Number.isFinite(c.updatedAt)&&(!l||c.updatedAt>l.updatedAt))api.saved=JSON.stringify(c);api.cloudReady=true;}catch(e){console.warn('Cloud storage unavailable; local progress remains available',e);}
+   try{api.player=await bounded(api.sdk.getPlayer(),6000);const cloud=await bounded(api.player.getData(['timeThief']),6000);const c=cloud?.timeThief,l=valid(api.saved);if(c?.version===1&&Number.isFinite(c.updatedAt)&&(!l||c.updatedAt>l.updatedAt))api.saved=JSON.stringify(c);api.cloudReady=true;}catch(e){console.warn('Cloud storage unavailable; local progress remains available',e);}
   }catch(e){console.warn('Yandex SDK unavailable; running with local saves',e);}
  };
  api.ready=()=>{if(api.readyCalled)return;api.readyCalled=true;document.getElementById('loading').hidden=true;try{api.sdk?.features?.LoadingAPI?.ready();}catch(e){console.warn(e);}pause('visibility',document.hidden);sync();};

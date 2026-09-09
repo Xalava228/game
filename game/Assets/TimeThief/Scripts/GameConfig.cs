@@ -80,6 +80,18 @@ namespace TimeThief
         DoubleShards
     }
 
+    public enum BattleCondition
+    {
+        QuietHour,
+        QuickSand,
+        ArcaneMist,
+        SteelEcho,
+        FrayedTime,
+        Abundance,
+        BrittleGuard,
+        SlowGlass
+    }
+
     [CreateAssetMenu(menuName = "Game/Game Config")]
     public sealed class GameConfig : ScriptableObject
     {
@@ -87,8 +99,12 @@ namespace TimeThief
         public PlayerStats startingStats = new PlayerStats();
         [Header("Input / combat")]
         public float holdThreshold = .25f, physicalSteal = 1, magicStealPerSecond = 2.6f, armorConstant = 10, resistanceConstant = 10, telegraphDuration = .6f, minimumCooldown = .8f;
+        [Header("Time exchange / elemental protection")]
+        [Range(0, 1)] public float playerRecoveryFraction = .6f;
+        [Range(0, .99f)] public float sameTypeResistance = .9f;
+        public float continuousDrain = 1f;
         [Header("Enemy scaling")]
-        public float baseEnemyTime = 3, timePerLevel = .18f, timePerSqrtLevel = .6f, baseEnemyPower = .25f, powerPerSqrtLevel = .12f, baseCooldown = 4.5f, cooldownDecay = .22f;
+        public float baseEnemyTime = 3, timePerLevel = .18f, timePerSqrtLevel = .6f, baseEnemyPower = .25f, powerPerLevel = .008f, powerPerSqrtLevel = .12f, baseCooldown = 4.5f, cooldownDecay = .22f;
         [Header("Growth after every victory")]
         public PlayerStats growth = new PlayerStats{MaxTime = .04f, CurrentTime = 0, Attack = .015f, CritChance = .0001f, CritMultiplier = .001f, Armor = .02f, MagicResistance = .02f};
         [Header("Content / optional sprite and audio slots")]

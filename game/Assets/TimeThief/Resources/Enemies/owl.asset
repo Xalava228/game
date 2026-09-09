@@ -18,3 +18,4 @@ MonoBehaviour:
   enemySprite: {fileID: 21300000, guid: 4d37837c47ae93c42abefdfb77568c00, type: 3}
   themeColor: {r: 0.3, g: 0.7, b: 0.65, a: 1}
   attackType: 0
+  ability: 9

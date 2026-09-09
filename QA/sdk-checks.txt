@@ -1,1 +1,1 @@
-8 SDK tests passed: ready idempotency, independent pause causes, no reward on close/error, reward once on callback, no open-ad timeout resume, save validation, no gameplay from menus.
+11 SDK tests passed: ready idempotency, independent pause causes, no reward on close/error, reward once on callback, no open-ad timeout resume, save validation, no gameplay from menus.

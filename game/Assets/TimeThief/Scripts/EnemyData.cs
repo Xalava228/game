@@ -9,5 +9,6 @@ namespace TimeThief
         public Sprite enemySprite;
         public Color themeColor = new Color(.3f, .7f, .65f);
         public AttackType attackType;
+        public Ability ability;
     }
 }

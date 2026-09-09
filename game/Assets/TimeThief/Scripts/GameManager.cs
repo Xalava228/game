@@ -55,6 +55,12 @@ namespace TimeThief
             ui = gameObject.AddComponent<UIManager>();
             ui.Init(this);
             SetState(GameState.Waiting);
+            StartCoroutine(ReadyAfterFrame());
+        }
+
+        System.Collections.IEnumerator ReadyAfterFrame()
+        {
+            yield return new WaitForEndOfFrame();
             platform.Ready();
         }
 
@@ -67,7 +73,7 @@ namespace TimeThief
                 float dt = Mathf.Min(Time.unscaledDeltaTime, .1f);
                 if (!(shop.Has(BuffType.Freeze) && enemy.elapsed < 2))
                 {
-                    player.LoseTime(dt);
+                    enemy.DrainPlayer(dt * enemy.FlowRate);
                     if (player.CurrentTime <= 0)
                     {
                         Lose();
@@ -114,7 +120,7 @@ namespace TimeThief
             player = save.player.Copy();
             shop = save.shop;
             enemy = new EnemyController(this, EnemyGenerator.Generate(config, level, seed));
-            enemy.time = Mathf.Clamp(save.enemyTime, 0, enemy.data.maxTime);
+            enemy.time = Mathf.Clamp(save.enemyTime, 0, 1e12f);
             enemy.timer = Mathf.Clamp(save.enemyTimer, 0, enemy.data.cooldown);
             enemy.elapsed = Mathf.Max(0, save.elapsed);
             enemy.attackCount = save.enemyAttacks;
@@ -158,10 +164,7 @@ namespace TimeThief
             lastReward = 0;
             save.bestLevel = Mathf.Max(save.bestLevel, level);
             PlayEncounterMusic();
-            if (enemy.data.type != EncounterType.Normal || level <= 5)
-                SetState(GameState.Intro);
-            else
-                SetState(GameState.Fighting);
+            SetState(GameState.Intro);
             if (enemy.data.type != EncounterType.Normal)
                 music.Sfx(enemy.data.type == EncounterType.Boss ? config.bossIntroSound : config.miniBossIntroSound);
             Persist();

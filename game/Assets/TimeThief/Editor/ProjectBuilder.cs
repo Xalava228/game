@@ -88,9 +88,9 @@ namespace TimeThief.Editor
             EditorUtility.SetDirty(TMP_Settings.instance);
 
             var c = LoadOrCreate<GameConfig>("GameConfig.asset");
-            string[] keys = {"moth", "clerk", "witch", "countess", "archivist", "hero", "slime", "owl"};
-            string[] ru = {"Минутный мотылёк", "Талонник", "Маятница", "Графиня минут", "Архивариус", "Ноль", "Тик-Так", "Совушка-полуночник"};
-            string[] en = {"Minute Moth", "The Ticket Clerk", "Pendula", "Countess of Minutes", "The Archivist", "Zero", "Tick-Tock", "Midnight Owl"};
+            string[] keys = {"moth", "clerk", "witch", "countess", "archivist", "hero", "slime", "owl", "clockcrab", "inkraven", "lanternghost", "gearfox", "scrollserpent", "mirrorjelly", "bookbat", "timebeetle"};
+            string[] ru = {"Минутный мотылёк", "Талонник", "Маятница", "Графиня минут", "Архивариус", "Ноль", "Тик-Так", "Совушка-полуночник", "Часовой краб", "Чернильный ворон", "Блуждающий фонарь", "Шестерённый лис", "Змей-свиток", "Стеклянная медуза", "Книгокрыл", "Жук-секундомер"};
+            string[] en = {"Minute Moth", "The Ticket Clerk", "Pendula", "Countess of Minutes", "The Archivist", "Zero", "Tick-Tock", "Midnight Owl", "Clockwork Crab", "Ink Raven", "Wandering Lantern", "Gear Fox", "Scroll Serpent", "Glass Jelly", "Bookwing", "Stopwatch Beetle"};
             c.enemies = new EnemyData[keys.Length];
             EnsureFolder(ResourcesPath + "Enemies");
             for (int i = 0; i < keys.Length; i++)
@@ -100,16 +100,16 @@ namespace TimeThief.Editor
                 e.nameEn = en[i];
                 e.artKey = keys[i];
                 e.enemySprite = AssetDatabase.LoadAssetAtPath<Sprite>(ResourcesPath + "Art/" + keys[i] + ".png");
-                e.attackType = i % 2 == 0 ? AttackType.Magic : AttackType.Physical;
+                e.attackType = i == 6 || i == 2 || i == 4 || i == 9 || i == 10 || i == 12 || i == 13 ? AttackType.Magic : AttackType.Physical;
+                e.ability = new[] { Ability.None, Ability.Accelerate, Ability.PulseShield, Ability.Leech, Ability.MagicSurge, Ability.FinalHour, Ability.None, Ability.Heat, Ability.Thorns, Ability.Accelerate, Ability.PulseShield, Ability.HeavyStrike, Ability.Regenerate, Ability.SwitchDefense, Ability.MagicSurge, Ability.Thorns }[i];
                 EditorUtility.SetDirty(e);
                 c.enemies[i] = e;
             }
 
-            string[] br = {"Король будильников", "Леди Маятница", "Лунный мотылёк", "Графиня вечности", "Великий Архивариус", "Хранитель полуночи", "Хозяйка колючих минут", "Сборщик секунд", "Солнечная графиня", "Хранитель последнего часа"};
-            string[] be = {"Alarm King", "Lady Pendula", "Moon Moth", "Countess of Forever", "Grand Archivist", "Midnight Keeper", "Lady of Thorny Minutes", "The Second Collector", "Sun Countess", "The Last Hour"};
-            string[] hintsRu = {"После каждого удара атакует чуть быстрее.", "Иногда поднимает щит. Дождись, пока он погаснет.", "Меняет защиту. Чередуй клики и удерживание.", "Понемногу восстанавливает время. Не зевай!", "Каждый третий удар сильнее. Следи за вспышкой.", "Каждый третий удар меняет тип атаки.", "Отражает каждый четвёртый клик. Используй магию.", "Возвращает себе больше украденного времени.", "Долгая магия ослабевает. Делай перерывы.", "На исходе времени ускоряется. Заверши бой!"};
-            string[] hintsEn = {"Attacks a little faster after each strike.", "Sometimes raises a shield. Wait for it to fade.", "Switches defenses. Alternate tapping and holding.", "Slowly restores time. Keep stealing!", "Every third strike hits harder. Watch the flash.", "Every third strike changes its attack type.", "Reflects every fourth tap. Use magic.", "Restores more of the time it steals.", "Long magic holds weaken. Take short breaks.", "Speeds up when low on time. Finish the fight!"};
-            string[] bk = {"clerk", "witch", "moth", "countess", "archivist", "owl", "witch", "clerk", "countess", "archivist"};
+            string[] br = {"Полуночный экспресс", "Врата затмения", "Двуликие часы", "Сад тысячелетий", "Кузница эпох", "Разбитая орбита", "Скорпион вечности", "Пасть забвения", "Солнечный феникс", "Колокол последнего часа"};
+            string[] be = {"Midnight Express", "Eclipse Gate", "Two-Faced Clock", "Millennium Garden", "Forge of Ages", "Shattered Orbit", "Eternity Scorpion", "Maw of Oblivion", "Solar Phoenix", "Last-Hour Bell"};
+            string[] hintsRu = {"После каждого удара атакует чуть быстрее.", "Иногда поднимает щит. Дождись, пока он погаснет.", "Меняет защиту. Чередуй клики и удерживание.", "Понемногу восстанавливает время. Не зевай!", "Каждый третий удар сильнее. Следи за вспышкой.", "Каждый третий удар меняет тип атаки.", "Отражает каждый четвёртый клик. Используй магию.", "Крадёт ударами на 20% больше.", "Долгая магия ослабевает. Делай перерывы.", "На исходе времени ускоряется. Заверши бой!"};
+            string[] hintsEn = {"Attacks a little faster after each strike.", "Sometimes raises a shield. Wait for it to fade.", "Switches defenses. Alternate tapping and holding.", "Slowly restores time. Keep stealing!", "Every third strike hits harder. Watch the flash.", "Every third strike changes its attack type.", "Reflects every fourth tap. Use magic.", "Steals 20% more with each strike.", "Long magic holds weaken. Take short breaks.", "Speeds up when low on time. Finish the fight!"};
             c.bosses = new BossData[10];
             EnsureFolder(ResourcesPath + "Bosses");
             for (int i = 0; i < 10; i++)
@@ -123,11 +123,6 @@ namespace TimeThief.Editor
                 b.bossSprite = AssetDatabase.LoadAssetAtPath<Sprite>(ResourcesPath + "Art/" + b.artKey + ".png");
                 b.attackType = i % 2 == 0 ? AttackType.Physical : AttackType.Magic;
                 b.specialAbilityType = (Ability)(i + 1);
-                b.baseMaxTime = 8 + i;
-                b.attackPower = .3f + i * .06f;
-                b.attackCooldown = 3.8f;
-                b.physicalDefense = i == 1 ? .3f : 0;
-                b.magicDefense = i == 0 ? .3f : 0;
                 EditorUtility.SetDirty(b);
                 c.bosses[i] = b;
             }
@@ -186,7 +181,7 @@ namespace TimeThief.Editor
             }
             PlayerSettings.companyName = "Xalava";
             PlayerSettings.productName = "TimeThief";
-            PlayerSettings.bundleVersion = "1.0.0";
+            PlayerSettings.bundleVersion = "1.1.0";
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.colorSpace = ColorSpace.Gamma;
             PlayerSettings.defaultScreenWidth = 1600;
@@ -272,7 +267,8 @@ namespace TimeThief.Editor
         {
             checks = 0;
             var c = Resources.Load<GameConfig>("GameConfig");
-            Check(c && c.bosses.Length == 10, "10 boss assets");
+            Check(c && c.bosses.Length == 10 && c.enemies.Length == 16, "10 bosses and 16 regular enemies");
+            Check(c.bosses.Select(b => b.bossSprite).Distinct().Count() == 10 && !c.bosses.Any(b => c.enemies.Any(e => e.enemySprite == b.bossSprite)), "independent boss sprites");
             Check(Resources.Load<TMP_FontAsset>("Fonts/Nunito SDF").faceInfo.styleName == "Bold", "static bold font for readable UI");
             Check(c.menuMusic && c.normalBattleMusic && c.proceduralBossMusic, "three original music loops assigned");
             Check(c.bosses.All(b => b.bossMusic != null), "music assigned to every boss");
@@ -292,6 +288,13 @@ namespace TimeThief.Editor
                     Check(!(e.physicalDefense > .35f && e.magicDefense > .35f), "both defenses cannot be high");
                     Check(e.modifiers.Distinct().Count() == e.modifiers.Length, "no duplicate modifiers");
                     Check(e.sprite != null, "every encounter has artwork");
+                    Check(Mathf.Max(e.magicDefense, e.physicalDefense) == c.sameTypeResistance, "own element is resisted");
+                    if (level > 1)
+                    {
+                        var previous = EnemyGenerator.Generate(c, level - 1, seed);
+                        Check(e.maxTime > previous.maxTime && e.power > previous.power, "strict level scaling");
+                        Check(e.artKey != previous.artKey, "no adjacent repeats");
+                    }
                 }
 
             var late = EnemyGenerator.Generate(c, 1000000, 3);

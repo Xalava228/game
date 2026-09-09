@@ -27,10 +27,14 @@ MonoBehaviour:
   resistanceConstant: 10
   telegraphDuration: 0.6
   minimumCooldown: 0.8
+  playerRecoveryFraction: 0.6
+  sameTypeResistance: 0.9
+  continuousDrain: 1
   baseEnemyTime: 3
   timePerLevel: 0.18
   timePerSqrtLevel: 0.6
   baseEnemyPower: 0.25
+  powerPerLevel: 0.008
   powerPerSqrtLevel: 0.12
   baseCooldown: 4.5
   cooldownDecay: 0.22
@@ -51,6 +55,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: caa2b37fc25d0d24cbc7eeb2007a4da2, type: 2}
   - {fileID: 11400000, guid: 81e70605d0035264c9c3f0f9127b896e, type: 2}
   - {fileID: 11400000, guid: a16c522388c50db479925d0adcfe76b9, type: 2}
+  - {fileID: 11400000, guid: cb01037f1d321e347a83906701ce0ea8, type: 2}
+  - {fileID: 11400000, guid: 1cf9aed10b4833f4eb276a34147f3c17, type: 2}
+  - {fileID: 11400000, guid: 3140b5e9d6cd0684e94525cc79618307, type: 2}
+  - {fileID: 11400000, guid: 98862541c9a50724c8fcf71830e33e86, type: 2}
+  - {fileID: 11400000, guid: eb7c58c7948ca9047875fcddd0af99f0, type: 2}
+  - {fileID: 11400000, guid: 3dd2fcff163c8654c9ab29049b5c6261, type: 2}
+  - {fileID: 11400000, guid: 08ac877745e5fc546b1535a39b9ce2bf, type: 2}
+  - {fileID: 11400000, guid: fc2dff779c35edc4a821b9c42a611ae1, type: 2}
   bosses:
   - {fileID: 11400000, guid: a223d5a668ca9dd4280eb825098b7490, type: 2}
   - {fileID: 11400000, guid: fc287e540540f3643b5cf106258907d0, type: 2}

@@ -1,1 +1,1 @@
-13227 portable model checks passed. Production generation/combat/stats/shop/reward code; math/assets adapter only. Unity runtime integration is a separate check.
+57194 portable model checks passed. Production generation/combat/stats/shop/reward code; math/assets adapter only. Unity runtime integration is a separate check.

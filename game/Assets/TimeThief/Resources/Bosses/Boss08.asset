@@ -12,21 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43ff7f42c7b516445a8fd13b294368bc, type: 3}
   m_Name: Boss08
   m_EditorClassIdentifier: Assembly-CSharp::TimeThief.BossData
-  bossName: "\u0421\u0431\u043E\u0440\u0449\u0438\u043A \u0441\u0435\u043A\u0443\u043D\u0434"
-  nameEn: The Second Collector
-  hintRu: "\u0412\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u0441\u0435\u0431\u0435
-    \u0431\u043E\u043B\u044C\u0448\u0435 \u0443\u043A\u0440\u0430\u0434\u0435\u043D\u043D\u043E\u0433\u043E
-    \u0432\u0440\u0435\u043C\u0435\u043D\u0438."
-  hintEn: Restores more of the time it steals.
+  bossName: "\u041F\u0430\u0441\u0442\u044C \u0437\u0430\u0431\u0432\u0435\u043D\u0438\u044F"
+  nameEn: Maw of Oblivion
+  hintRu: "\u041A\u0440\u0430\u0434\u0451\u0442 \u0443\u0434\u0430\u0440\u0430\u043C\u0438
+    \u043D\u0430 20% \u0431\u043E\u043B\u044C\u0448\u0435."
+  hintEn: Steals 20% more with each strike.
   artKey: boss-08
   bossSprite: {fileID: 21300000, guid: a08685a5c3f9ca94a9a71526315131d3, type: 3}
   bossThemeColor: {r: 0.5, g: 0.4, b: 0.7, a: 1}
   bossMusic: {fileID: 8300000, guid: 7a8f2be6344baf74c85c567f391bd459, type: 3}
-  baseMaxTime: 15
-  physicalDefense: 0
-  magicDefense: 0
-  attackPower: 0.72
-  attackCooldown: 3.8
   rewardMultiplier: 1
   attackType: 1
   specialAbilityType: 8

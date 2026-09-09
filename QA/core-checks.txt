@@ -1,1 +1,1 @@
-17622 checks passed; 4400 generated encounters, levels 10/25/50/250/275, level 1,000,000, transfer caps, shop, buff expiry, rewards and corrupted stats.
+30815 checks passed; 4400 generated encounters, levels 10/25/50/250/275, level 1,000,000, transfer caps, shop, buff expiry, rewards and corrupted stats.
