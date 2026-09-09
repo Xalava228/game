@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43ff7f42c7b516445a8fd13b294368bc, type: 3}
+  m_Name: Boss05
+  m_EditorClassIdentifier: Assembly-CSharp::TimeThief.BossData
+  bossName: "\u0412\u0435\u043B\u0438\u043A\u0438\u0439 \u0410\u0440\u0445\u0438\u0432\u0430\u0440\u0438\u0443\u0441"
+  nameEn: Grand Archivist
+  hintRu: "\u041A\u0430\u0436\u0434\u044B\u0439 \u0442\u0440\u0435\u0442\u0438\u0439
+    \u0443\u0434\u0430\u0440 \u0441\u0438\u043B\u044C\u043D\u0435\u0435. \u0421\u043B\u0435\u0434\u0438
+    \u0437\u0430 \u0432\u0441\u043F\u044B\u0448\u043A\u043E\u0439."
+  hintEn: Every third strike hits harder. Watch the flash.
+  artKey: boss-05
+  bossSprite: {fileID: 21300000, guid: b812c98960a96324693c94a45abcae07, type: 3}
+  bossThemeColor: {r: 0.5, g: 0.4, b: 0.7, a: 1}
+  bossMusic: {fileID: 8300000, guid: 7a8f2be6344baf74c85c567f391bd459, type: 3}
+  baseMaxTime: 12
+  physicalDefense: 0
+  magicDefense: 0
+  attackPower: 0.54
+  attackCooldown: 3.8
+  rewardMultiplier: 1
+  attackType: 0
+  specialAbilityType: 5
+  specialAbilityValues: {x: 6, y: 0.3, z: 1.5}

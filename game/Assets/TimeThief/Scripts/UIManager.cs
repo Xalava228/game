@@ -14,20 +14,24 @@ namespace TimeThief
         RectTransform root, battle, page, fx, enemyRect;
         TMP_FontAsset font;
         Image enemyImage, enemyBar, playerBar;
-        TMP_Text enemySeconds, playerSeconds, warning, buffText;
+        TMP_Text enemySeconds, playerSeconds, warning, buffText, combatMessage;
+        Image combatBanner;
+        string lastCombatMessage;
+        Color lastCombatColor;
+        float combatUntil;
         GameObject pauseShade;
         public EnemyInput input;
         readonly Dictionary<string, Sprite> art = new Dictionary<string, Sprite>();
         readonly List<Button> guarded = new List<Button>();
         readonly List<Floater> floaters = new List<Floater>();
-        Color ink = Hex("292d46"), muted = Hex("75817d"), cream = Hex("fffaf0"), mint = Hex("359c91"), purple = Hex("716099"), gold = Hex("e8ad58"), red = Hex("bf6658");
+        Color ink = Hex("24283f"), muted = Hex("515c60"), cream = Hex("fffaf0"), mint = Hex("17695f"), purple = Hex("594477"), gold = Hex("a15d12"), red = Hex("a33337");
         float unit = 1, hit, attackFlash, magicParticle;
         int sw, sh;
         bool portrait;
         class Floater
         {
             public RectTransform rt;
-            public TMP_Text text;
+            public Graphic visual;
             public Vector2 start, velocity;
             public float age;
         }
@@ -116,7 +120,9 @@ namespace TimeThief
             var r = Box(p, "Text", x, y, w, h);
             var t = r.gameObject.AddComponent<TextMeshProUGUI>();
             t.font = font;
+            t.fontStyle = FontStyles.Normal;
             t.text = value;
+            size = Mathf.Max(size, portrait ? 14.5f : 14f);
             t.fontSize = size * unit;
             t.color = color ?? ink;
             t.alignment = align;
@@ -124,7 +130,7 @@ namespace TimeThief
             t.textWrappingMode = TextWrappingModes.Normal;
             t.overflowMode = TextOverflowModes.Ellipsis;
             t.enableAutoSizing = true;
-            t.fontSizeMin = size * unit * .7f;
+            t.fontSizeMin = size * unit * .88f;
             t.fontSizeMax = size * unit;
             return t;
         }
@@ -146,8 +152,15 @@ namespace TimeThief
                 if (g.ActionsReady)
                     action();
             });
-            Text(bg.transform, label, icon == null ? .5f : .55f, .5f, icon == null ? .92f : .78f, .85f, 17, cream);
-            if (icon != null)
+            bool iconOnly = icon != null && (string.IsNullOrEmpty(label) || label == "×");
+            if (iconOnly)
+            {
+                Img(bg.transform, "icon-" + icon, .5f, .5f, .6f, .62f, cream);
+                if (label == "×") Text(bg.transform, "×", .78f, .28f, .44f, .48f, 17, cream);
+            }
+            else
+                Text(bg.transform, label, icon == null ? .5f : .55f, .5f, icon == null ? .92f : .78f, .85f, 17, cream);
+            if (icon != null && !iconOnly)
                 Img(bg.transform, "icon-" + icon, .11f, .5f, .15f, .6f, cream);
             if (enabled)
                 guarded.Add(b);
@@ -174,9 +187,14 @@ namespace TimeThief
             floaters.Clear();
             Canvas.ForceUpdateCanvases();
             portrait = Screen.width < Screen.height;
-            unit = Mathf.Min(root.rect.width / 1100f, root.rect.height / 760f);
+            // WebGL Screen dimensions include the render DPR (capped at 1.5 by the template).
+            bool compactLandscape = !portrait && Screen.width > Screen.height * 2 && Screen.height < 850;
+            unit = portrait ? root.rect.width / 430f : Mathf.Min(root.rect.width / 1100f, root.rect.height / (compactLandscape ? 500f : 760f));
             unit = Mathf.Max(.55f, unit);
-            Img(root, "arena", .5f, .5f, 1, 1, null, false);
+            var backdrop = Img(root, "arena", .5f, .5f, 1, 1, null, false);
+            var fit = backdrop.gameObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fit.aspectRatio = backdrop.sprite.rect.width / backdrop.sprite.rect.height;
             battle = Box(root, "Battle", .5f, .5f, 1, 1);
             page = Box(root, "Page", .5f, .5f, 1, 1);
             fx = Box(root, "Effects", .5f, .5f, 1, 1);
@@ -202,6 +220,11 @@ namespace TimeThief
                 Text(page, g.T("Открываем следующую минуту…", "Opening the next minute…"), .5f, .5f, .8f, .15f, 26);
             if (g.state != GameState.Waiting)
             {
+                Button(root, g.music.Muted ? "×" : "", portrait ? .805f : .882f, .947f, portrait ? .09f : .043f, .062f, () =>
+                {
+                    g.music.Toggle();
+                    Refresh();
+                }, ink, "sound");
                 Img(root, "logo", portrait ? .08f : .047f, .948f, portrait ? .09f : .042f, .058f);
                 if (!portrait)
                     Text(root, g.T("ВОР ВРЕМЕНИ", "TIME THIEF"), .133f, .948f, .12f, .05f, 14, ink, TextAlignmentOptions.Left);
@@ -225,7 +248,9 @@ namespace TimeThief
             var e = g.enemy?.data;
             string name = e == null ? "" : g.English ? e.nameEn : e.nameRu;
             float width = portrait ? .86f : .42f;
-            Text(battle, g.T("УРОВЕНЬ ", "LEVEL ") + g.level.ToString("D2"), .5f, .955f, .55f, .04f, 16, muted);
+            var levelTag = Panel(battle, .5f, .951f, portrait ? .48f : .18f, .049f, ink);
+            Text(levelTag.transform, g.T("УРОВЕНЬ ", "LEVEL ") + g.level.ToString("D2"), .5f, .5f, .94f, .9f, 17, cream);
+            Panel(battle, .5f, .833f, portrait ? .97f : .64f, .155f, cream);
             Text(battle, name, .5f, .865f, portrait ? .9f : .6f, .075f, 34);
             enemySeconds = Text(battle, "", .5f, .805f, .6f, .043f, 19, purple);
             var rail = Panel(battle, .5f, .765f, width, .013f, Hex("e0dacd"));
@@ -240,11 +265,14 @@ namespace TimeThief
             input = enemyImage.gameObject.AddComponent<EnemyInput>();
             input.Init(g);
             enemyRect = enemyImage.rectTransform;
-            warning = Text(battle, "", .5f, .285f, .9f, .055f, 18, red);
-            Text(battle, g.T("Нажимай — кради.  Удерживай — колдуй.", "Tap to steal.  Hold to cast."), .5f, .228f, portrait ? .9f : .56f, .045f, 16, muted);
+            combatBanner = Panel(battle, .5f, .32f, portrait ? .93f : .53f, .072f, red);
+            combatMessage = Text(combatBanner.transform, "", .5f, .5f, .96f, .94f, 17, cream);
+            combatBanner.gameObject.SetActive(false);
+            warning = Text(battle, "", .5f, .252f, .94f, .05f, 17, red);
+            Text(battle, g.T("Нажимай — кради. Удерживай — колдуй.", "Tap to steal. Hold to cast."), .5f, .207f, portrait ? .96f : .56f, .035f, 15, muted);
             var p = Panel(battle, .5f, .126f, portrait ? .89f : .49f, .135f, ink);
             Img(p.transform, "icon-time", .085f, .5f, .09f, .54f);
-            Text(p.transform, g.T("ТВОЁ ВРЕМЯ", "YOUR TIME"), .48f, .79f, .62f, .23f, 12, Hex("b8c8bc"), TextAlignmentOptions.Left);
+            Text(p.transform, g.T("ТВОЁ ВРЕМЯ", "YOUR TIME"), .48f, .79f, .62f, .23f, 14, cream, TextAlignmentOptions.Left);
             playerSeconds = Text(p.transform, "", .55f, .51f, .78f, .42f, 30, cream, TextAlignmentOptions.Left);
             var pr = Panel(p.transform, .57f, .18f, .76f, .095f, Hex("494e62"));
             playerBar = Img(pr.transform, "panel", .5f, .5f, 1, 1, Hex("93dfc6"), false);
@@ -336,7 +364,8 @@ namespace TimeThief
 
         void Title(string eyebrow, string title)
         {
-            Text(page, eyebrow, .5f, .87f, .9f, .05f, 14, purple);
+            Panel(page, .5f, .825f, .965f, .185f, cream);
+            Text(page, eyebrow, .5f, .88f, .94f, .055f, 16, purple);
             Text(page, title, .5f, .78f, .92f, .10f, 38);
         }
 
@@ -348,13 +377,13 @@ namespace TimeThief
             {
                 Img(page, "hero", .27f, .415f, .32f, .62f);
             }
-            else
-                Img(page, "icon-trophy", .5f, .651f, .13f, .095f, gold);
-            var card = Panel(page, x, portrait ? .485f : .475f, portrait ? .88f : .39f, portrait ? .22f : .38f, cream);
-            Text(card.transform, "+" + g.lastReward, .5f, .77f, .9f, .26f, 49, mint);
-            Text(card.transform, g.T("ОСКОЛКОВ ВРЕМЕНИ", "TIME SHARDS"), .5f, .53f, .9f, .14f, 14, muted);
-            Text(card.transform, g.miniReward != null ? RewardText(g.miniReward) : g.T("Все 6 характеристик немного выросли", "All 6 stats grew a little"), .5f, .32f, .91f, .2f, 17);
-            Text(card.transform, Mathf.CeilToInt(g.player.CurrentTime) + " / " + Mathf.CeilToInt(g.player.MaxTime) + g.T(" сек в запасе", " seconds in reserve"), .5f, .12f, .9f, .14f, 14, muted);
+            var card = Panel(page, x, portrait ? .515f : .475f, portrait ? .91f : .43f, portrait ? .33f : .43f, cream);
+            Text(card.transform, "+" + g.lastReward + g.T(" осколков", " shards"), .5f, .86f, .94f, .18f, 34, mint);
+            string bonus = g.miniReward == null ? g.T("ПОБЕДА ДЕЛАЕТ ТЕБЯ СИЛЬНЕЕ", "EVERY VICTORY MAKES YOU STRONGER") :
+                g.T("ПОЛУЧЕН ДАР: ", "GIFT RECEIVED: ") + RewardText(g.miniReward);
+            Text(card.transform, bonus, .5f, .67f, .94f, .17f, 17, g.miniReward == null ? ink : purple);
+            Text(card.transform, GrowthText(), .5f, .405f, .92f, .35f, portrait ? 14.5f : 16, ink);
+            Text(card.transform, g.player.CurrentTime.ToString("0.0") + " / " + g.player.MaxTime.ToString("0.0") + g.T(" сек в запасе", " seconds in reserve"), .5f, .12f, .94f, .13f, 16, muted);
             if (g.platform.CanAd && !g.rewardDoubled)
                 Button(page, g.T("Реклама · ещё +", "Ad · extra +") + g.lastReward, x, portrait ? .315f : .23f, portrait ? .87f : .39f, .065f, () => g.Bonus(), purple, "ticket");
             Button(page, g.T("Статы", "Stats"), portrait ? .265f : .54f, portrait ? .205f : .115f, portrait ? .41f : .13f, .072f, () => g.OpenStats(), ink, "crit");
@@ -368,7 +397,7 @@ namespace TimeThief
         string StatValue(Stat s)
         {
             float v = g.player.Get(s);
-            return s == Stat.CritChance ? (v * 100).ToString("0.#") + "%" : s == Stat.CritMultiplier ? "×" + v.ToString("0.00") : s == Stat.MaxTime ? Mathf.CeilToInt(v) + g.T(" сек", " sec") : v.ToString("0.00");
+            return s == Stat.CritChance ? (v * 100).ToString("0.##") + "%" : s == Stat.CritMultiplier ? "×" + v.ToString("0.###") : s == Stat.MaxTime ? v.ToString("0.##") + g.T(" сек", " sec") : v.ToString("0.###");
         }
 
         void Stats()
@@ -384,7 +413,7 @@ namespace TimeThief
                 Text(p.transform, StatValue((Stat)i), .60f, .33f, .69f, .40f, 28, ink, TextAlignmentOptions.Left);
             }
 
-            Text(page, Mathf.CeilToInt(g.player.CurrentTime) + " / " + Mathf.CeilToInt(g.player.MaxTime) + g.T(" секунд сейчас", " seconds now"), .5f, .18f, .8f, .06f, 18, muted);
+            Text(page, g.player.CurrentTime.ToString("0.##") + " / " + g.player.MaxTime.ToString("0.##") + g.T(" секунд сейчас", " seconds now"), .5f, .18f, .8f, .06f, 18, muted);
             Button(page, g.T("Назад", "Back"), .75f, .084f, .35f, .077f, () => g.Back(), ink);
         }
 
@@ -400,8 +429,8 @@ namespace TimeThief
                 float w = portrait ? .44f : .285f, h = portrait ? .10f : .15f, x = portrait ? .27f + col * .46f : .197f + col * .303f, y = portrait ? .665f - row * .114f : .625f - row * .185f;
                 var p = Panel(page, x, y, w, h, cream);
                 Img(p.transform, "icon-" + icons[i], .11f, .57f, .13f, .4f, i < 2 ? mint : purple);
-                Text(p.transform, names[i], .59f, .74f, .73f, .35f, portrait ? 13 : 16, ink, TextAlignmentOptions.Left);
-                string duration = i < 2 ? g.T("До конца забега", "Whole run") : i < 4 ? g.T("3 боя", "3 battles") : g.T("1 бой", "1 battle");
+                Text(p.transform, names[i], .59f, portrait ? .70f : .74f, .73f, portrait ? .50f : .35f, portrait ? 13 : 16, ink, TextAlignmentOptions.Left);
+                string duration = i < 2 ? g.T("Весь забег", "Whole run") : i < 4 ? g.T("3 боя", "3 battles") : g.T("1 бой", "1 battle");
                 Text(p.transform, duration, .39f, .32f, .37f, .3f, 11, muted, TextAlignmentOptions.Left);
                 bool owned = i >= 2 && g.shop.Has((BuffType)(i - 2));
                 Button(p.transform, owned ? g.T("Куплено", "Owned") : g.shop.Cost(i).ToString(), .79f, .27f, .34f, .35f, () => g.Buy(item), owned ? muted : ink, null, g.shop.CanBuy(i));
@@ -411,10 +440,22 @@ namespace TimeThief
             Text(page, g.T("Усиления действуют в этом забеге", "Upgrades last for this run"), .31f, .075f, .48f, .06f, 12, muted);
         }
 
-        string RewardText(Reward r)
+        string RewardText(Reward r, bool preview = false)
         {
-            string value = r.stat == Stat.CritChance ? "+" + (r.amount * 100).ToString("0") + "%" : r.percent ? "+" + (r.amount * 100).ToString("0") + "%" : "+" + r.amount.ToString("0.##");
+            float amount = preview && r.stat == Stat.CritChance ? Mathf.Min(r.amount, Mathf.Max(0, .75f - g.player.CritChance)) : r.amount;
+            string value = r.stat == Stat.CritChance ? "+" + (amount * 100).ToString("0.#") + g.T(" п.п.", " pp") : r.percent ? "+" + (amount * 100).ToString("0") + "%" : "+" + amount.ToString("0.##");
             return value + " " + StatNames[(int)r.stat];
+        }
+
+        string GrowthText()
+        {
+            var v = g.config.growth;
+            float[] d = g.save.lastGrowth;
+            if (d == null || d.Length != 6) d = new[] { v.MaxTime, v.Attack, v.CritChance, v.CritMultiplier, v.Armor, v.MagicResistance };
+            return g.T("За этот бой: ", "This battle: ") +
+                g.T("время +", "time +") + d[0].ToString("0.##") + g.T(" сек · атака +", " sec · attack +") + d[1].ToString("0.###") + "\n" +
+                g.T("Шанс крита +", "Crit chance +") + (d[2] * 100).ToString("0.##") + g.T(" п.п. · множитель +", " pp · multiplier +") + d[3].ToString("0.###") + "\n" +
+                g.T("Броня +", "Armor +") + d[4].ToString("0.##") + g.T(" · маг. защита +", " · magic resist +") + d[5].ToString("0.##");
         }
 
         void Rewards()
@@ -425,19 +466,21 @@ namespace TimeThief
             {
                 int index = i;
                 var r = g.rewards[i];
+                bool available = r.stat != Stat.CritChance || g.player.CritChance < .75f;
+                string choose = available ? g.T("Выбрать", "Choose") : g.T("Предел 75%", "75% limit");
                 float x = portrait ? .5f : .19f + i * .31f, y = portrait ? .545f - i * .174f : .43f;
                 var p = Panel(page, x, y, portrait ? .86f : .28f, portrait ? .15f : .39f, cream);
                 if (portrait)
                 {
                     Img(p.transform, "icon-" + StatIcons[(int)r.stat], .12f, .5f, .13f, .45f, purple);
-                    Text(p.transform, RewardText(r), .54f, .71f, .7f, .34f, 20);
-                    Button(p.transform, g.T("Выбрать", "Choose"), .73f, .26f, .45f, .36f, () => g.ChooseReward(index), mint);
+                    Text(p.transform, RewardText(r, true), .54f, .71f, .7f, .34f, 20);
+                    Button(p.transform, choose, .73f, .26f, .45f, .36f, () => g.ChooseReward(index), mint, null, available);
                 }
                 else
                 {
                     Img(p.transform, "icon-" + StatIcons[(int)r.stat], .5f, .78f, .22f, .25f, purple);
-                    Text(p.transform, RewardText(r), .5f, .48f, .93f, .23f, 24);
-                    Button(p.transform, g.T("Выбрать", "Choose"), .5f, .17f, .85f, .18f, () => g.ChooseReward(index), mint);
+                    Text(p.transform, RewardText(r, true), .5f, .48f, .93f, .23f, 24);
+                    Button(p.transform, choose, .5f, .17f, .85f, .18f, () => g.ChooseReward(index), mint, null, available);
                 }
             }
         }
@@ -476,8 +519,8 @@ namespace TimeThief
             if (g.enemy != null && battle.gameObject.activeSelf)
             {
                 float dt = Time.unscaledDeltaTime;
-                enemySeconds.text = Mathf.CeilToInt(g.enemy.time) + g.T(" сек у хранителя", " seconds to steal");
-                playerSeconds.text = Mathf.CeilToInt(g.player.CurrentTime) + " / " + Mathf.CeilToInt(g.player.MaxTime) + g.T(" сек", " sec");
+                enemySeconds.text = g.enemy.time.ToString("0.0") + g.T(" сек у хранителя", " seconds to steal");
+                playerSeconds.text = g.player.CurrentTime.ToString("0.0") + " / " + g.player.MaxTime.ToString("0.0") + g.T(" сек", " sec");
                 enemyBar.fillAmount = Mathf.Lerp(enemyBar.fillAmount, g.enemy.time / g.enemy.data.maxTime, 1 - Mathf.Exp(-dt * 14));
                 playerBar.fillAmount = Mathf.Lerp(playerBar.fillAmount, g.player.CurrentTime / g.player.MaxTime, 1 - Mathf.Exp(-dt * 14));
                 playerBar.color = g.player.CurrentTime < Mathf.Min(2, g.player.MaxTime * .3f) ? red : Hex("93dfc6");
@@ -487,7 +530,14 @@ namespace TimeThief
                 float bob = g.Paused ? 0 : Mathf.Sin(Time.unscaledTime * 2) * .008f;
                 enemyRect.localScale = new Vector3(1 + hit * .14f + (holding ? Mathf.Sin(Time.unscaledTime * 41) * .008f : 0), 1 - hit * .12f + bob, 1);
                 enemyImage.color = Color.Lerp(Color.white, red, attackFlash * .65f);
-                warning.text = g.IsFighting && g.enemy.Telegraph ? g.T("Готовится удар!", "Incoming strike!") : g.IsFighting && g.enemy.Shielded ? g.T("Щит! Скоро исчезнет", "Shield! It will fade soon") : holding ? g.T("Магия забирает время…", "Magic is stealing time…") : "";
+                bool nextHeavy = g.enemy.data.ability == Ability.HeavyStrike && (g.enemy.attackCount + 1) % 3 == 0;
+                warning.text = g.IsFighting && g.enemy.Telegraph ? (nextHeavy ? g.T("Мощный удар через ", "Heavy strike in ") : g.T("Удар через ", "Strike in ")) + Mathf.Max(0, g.enemy.timer).ToString("0.0") + g.T(" сек!", " sec!") : g.IsFighting && g.enemy.Shielded ? g.T("Щит! Скоро исчезнет", "Shield! It will fade soon") : holding ? g.T("Магия крадёт секунды…", "Magic steals seconds…") : "";
+                if (combatBanner)
+                {
+                    combatBanner.gameObject.SetActive(g.state == GameState.Fighting && Time.unscaledTime < combatUntil);
+                    combatBanner.color = lastCombatColor;
+                    combatMessage.text = lastCombatMessage;
+                }
                 buffText.text = "";
                 foreach (var b in g.shop.buffs)
                     buffText.text += (g.English ? b.type.ToString() : new[]{"Броня", "Маг. барьер", "Супер-клик", "Магия", "Крит", "Заморозка", "Осколки ×2"}[(int)b.type]) + " · " + b.remainingBattles + "   ";
@@ -497,7 +547,7 @@ namespace TimeThief
                     if (magicParticle > .10f)
                     {
                         magicParticle = 0;
-                        Float("✦", mint, new Vector2(.5f + UnityEngine.Random.Range(-.10f, .10f), .41f), new Vector2(0, -root.rect.height * .3f));
+                        Shard(new Vector2(.5f + UnityEngine.Random.Range(-.10f, .10f), .41f));
                     }
                 }
             }
@@ -513,9 +563,9 @@ namespace TimeThief
 
                 f.age += Time.unscaledDeltaTime;
                 f.rt.anchoredPosition = f.start + f.velocity * f.age;
-                var c = f.text.color;
+                var c = f.visual.color;
                 c.a = 1 - f.age / 1.05f;
-                f.text.color = c;
+                f.visual.color = c;
                 if (f.age > 1.05f)
                 {
                     Destroy(f.rt.gameObject);
@@ -528,22 +578,40 @@ namespace TimeThief
         {
             if (floaters.Count >= 24)
                 return;
-            var t = Text(fx, value, at.x, at.y, .3f, .08f, 24, color);
+            var t = Text(fx, value, at.x, at.y, portrait ? .95f : .5f, .08f, 24, color);
             t.enableAutoSizing = false;
             var rt = t.rectTransform;
-            floaters.Add(new Floater{rt = rt, text = t, start = rt.anchoredPosition, velocity = velocity});
+            floaters.Add(new Floater{rt = rt, visual = t, start = rt.anchoredPosition, velocity = velocity});
+        }
+
+        void Shard(Vector2 at)
+        {
+            if (floaters.Count >= 24) return;
+            var image = Img(fx, "icon-shard", at.x, at.y, .018f, .026f, mint);
+            var rt = image.rectTransform;
+            floaters.Add(new Floater { rt = rt, visual = image, start = rt.anchoredPosition,
+                velocity = new Vector2((.5f - at.x) * root.rect.width, -root.rect.height * .3f) });
         }
 
         public void Hit(float stolen, bool critical)
         {
             hit = critical ? 1.6f : 1;
-            Float(critical ? g.T("КРИТ! ", "CRIT! ") + Mathf.CeilToInt(stolen) : "−" + Mathf.CeilToInt(stolen), critical ? purple : mint, new Vector2(.5f + UnityEngine.Random.Range(-.08f, .08f), .52f), new Vector2(0, 85 * unit));
+            Float((critical ? g.T("ТВОЙ КРИТ! −", "YOUR CRIT! −") : "−") + stolen.ToString("0.0") + g.T(" сек", " sec"), critical ? purple : mint, new Vector2(.5f + UnityEngine.Random.Range(-.08f, .08f), .55f), new Vector2(0, 85 * unit));
+            if (critical) CombatNotice(g.T("ТВОЙ КРИТ: украдено ", "YOUR CRIT: stole ") + stolen.ToString("0.0") + g.T(" сек", " sec"), purple);
         }
 
-        public void EnemyHit(bool magic)
+        void CombatNotice(string message, Color color)
+        {
+            lastCombatMessage = message;
+            lastCombatColor = color;
+            combatUntil = Time.unscaledTime + 2.3f;
+        }
+
+        public void EnemyHit(float taken, bool magic, bool heavy = false, bool reflected = false)
         {
             attackFlash = 1;
-            Float(g.T("Хранитель крадёт время!", "The keeper steals time!"), red, new Vector2(.5f, .31f), new Vector2(0, 55 * unit));
+            string type = reflected ? g.T("ОТРАЖЕНИЕ КЛИКА", "REFLECTED TAP") : heavy ? g.T("МОЩНЫЙ УДАР БОССА", "HEAVY BOSS STRIKE") : magic ? g.T("МАГИЯ ХРАНИТЕЛЯ", "KEEPER MAGIC") : g.T("УДАР ХРАНИТЕЛЯ", "KEEPER STRIKE");
+            CombatNotice(type + "\n−" + taken.ToString("0.00") + g.T(" сек твоего времени", " sec of your time"), red);
         }
     }
 }

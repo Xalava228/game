@@ -1,0 +1,15 @@
+{
+  "archive": "D:\\Game\\Release\\TimeThief-Yandex-1.0.0.zip",
+  "bytes": 13396307,
+  "sha256": "4fa921b7e7eae54673b489608a851271f186c550623acdc2588186929067c3f0",
+  "files": [
+    "Build/27dbfbaa30b4355a8dcef454297303b6.wasm.unityweb",
+    "Build/2f75e239fa010ef04c36837306b9bf9f.loader.js",
+    "Build/52f54ec10d9961dec3c50aa3ca23242b.data.unityweb",
+    "Build/5c8059070606a66c58f587091b82ba09.framework.js.unityweb",
+    "icon.png",
+    "index.html",
+    "sdk-bridge.js"
+  ],
+  "checks": "ZIP CRC, root index, safe names, byte-identical build files, four resolved Unity references"
+}

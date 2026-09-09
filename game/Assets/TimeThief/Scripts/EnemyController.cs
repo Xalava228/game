@@ -84,8 +84,8 @@ namespace TimeThief
 
             if (!magic && (data.Has(Modifier.Thorny) || data.ability == Ability.Thorns) && physicalHits % 4 == 0)
             {
-                game.player.LoseTime(Mathf.Min(.35f, game.player.MaxTime * .06f));
-                game.ui.EnemyHit(false);
+                float reflected = game.player.LoseTime(Mathf.Min(.35f, game.player.MaxTime * .06f));
+                game.ui.EnemyHit(reflected, false, false, true);
                 if (game.player.CurrentTime <= 0)
                     game.Lose();
             }
@@ -100,7 +100,8 @@ namespace TimeThief
             if (data.ability == Ability.MagicSurge && attackCount % 3 == 0)
                 magic = !magic;
             float p = data.power;
-            if (data.ability == Ability.HeavyStrike && attackCount % 3 == 0)
+            bool heavy = data.ability == Ability.HeavyStrike && attackCount % 3 == 0;
+            if (heavy)
                 p *= 1.5f;
             float defense = magic ? game.player.MagicResistance : game.player.Armor;
             if (game.shop.Has(magic ? BuffType.Resistance : BuffType.Armor))
@@ -108,7 +109,7 @@ namespace TimeThief
             float damage = PlayerStats.Reduced(p, defense, magic ? game.config.resistanceConstant : game.config.armorConstant);
             float taken = game.player.LoseTime(damage);
             time = Mathf.Min(data.maxTime, time + taken * (data.Has(Modifier.Vampire) || data.ability == Ability.Leech ? 1.4f : 1));
-            game.ui.EnemyHit(magic);
+            game.ui.EnemyHit(taken, magic, heavy);
             game.music.Sfx(magic ? game.config.enemyMagicAttackSound : game.config.enemyPhysicalAttackSound);
             if (game.player.CurrentTime <= 0)
                 game.Lose();

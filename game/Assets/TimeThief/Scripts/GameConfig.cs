@@ -94,9 +94,9 @@ namespace TimeThief
         [Header("Content / optional sprite and audio slots")]
         public EnemyData[] enemies;
         public BossData[] bosses;
-        public AudioClip normalBattleMusic, proceduralBossMusic;
+        public AudioClip menuMusic, normalBattleMusic, proceduralBossMusic;
         public AudioClip physicalHitSound, criticalSound, magicStartSound, magicLoopSound, enemyPhysicalAttackSound, enemyMagicAttackSound, victorySound, miniBossIntroSound, bossIntroSound, upgradeSound, shopSound, gameOverSound;
         [Header("Music")]
-        public float crossfadeDuration = 1.5f, musicVolume = .7f;
+        public float crossfadeDuration = 1.5f, musicVolume = .42f;
     }
 }

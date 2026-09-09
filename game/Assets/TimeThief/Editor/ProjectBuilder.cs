@@ -32,6 +32,13 @@ namespace TimeThief.Editor
         [MenuItem("Time Thief/Prepare Project")]
         public static void Prepare()
         {
+            if (!Resources.Load<TMP_Settings>("TMP Settings"))
+            {
+                var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(TMP_FontAsset).Assembly);
+                AssetDatabase.ImportPackage(Path.Combine(package.resolvedPath, "Package Resources/TMP Essential Resources.unitypackage"), false);
+                AssetDatabase.Refresh();
+            }
+
             foreach (string file in Directory.GetFiles(ResourcesPath + "Art", "*.png"))
             {
                 var t = (TextureImporter)AssetImporter.GetAtPath(file.Replace('\\', '/'));
@@ -49,9 +56,14 @@ namespace TimeThief.Editor
 
             string fp = ResourcesPath + "Fonts/Nunito SDF.asset";
             var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fp);
+            if (font && font.faceInfo.styleName != "Bold")
+            {
+                AssetDatabase.DeleteAsset(fp);
+                font = null;
+            }
             if (!font)
             {
-                var source = AssetDatabase.LoadAssetAtPath<Font>(ResourcesPath + "Fonts/Nunito.ttf");
+                var source = AssetDatabase.LoadAssetAtPath<Font>(ResourcesPath + "Fonts/Nunito-Bold.ttf");
                 font = TMP_FontAsset.CreateFontAsset(source, 64, 8, GlyphRenderMode.SDFAA, 2048, 2048, AtlasPopulationMode.Dynamic, false);
                 font.name = "Nunito SDF";
                 string chars = "";
@@ -59,7 +71,7 @@ namespace TimeThief.Editor
                     chars += (char)i;
                 for (int i = 0x400; i <= 0x45f; i++)
                     chars += (char)i;
-                chars += "×−–—…·→✦Ёё«»";
+                chars += "×−–—…·Ёё«»";
                 font.TryAddCharacters(chars, out string missing);
                 font.atlasPopulationMode = AtlasPopulationMode.Static;
                 AssetDatabase.CreateAsset(font, fp);
@@ -70,12 +82,17 @@ namespace TimeThief.Editor
                 Debug.Log("Font atlas ready. Missing optional glyphs: " + missing);
             }
 
+            TMP_Settings.defaultFontAsset = font;
+            TMP_Settings.defaultSpriteAsset = null;
+            TMP_Settings.enableEmojiSupport = false;
+            EditorUtility.SetDirty(TMP_Settings.instance);
+
             var c = LoadOrCreate<GameConfig>("GameConfig.asset");
             string[] keys = {"moth", "clerk", "witch", "countess", "archivist", "hero", "slime", "owl"};
             string[] ru = {"Минутный мотылёк", "Талонник", "Маятница", "Графиня минут", "Архивариус", "Ноль", "Тик-Так", "Совушка-полуночник"};
             string[] en = {"Minute Moth", "The Ticket Clerk", "Pendula", "Countess of Minutes", "The Archivist", "Zero", "Tick-Tock", "Midnight Owl"};
             c.enemies = new EnemyData[keys.Length];
-            Directory.CreateDirectory(ResourcesPath + "Enemies");
+            EnsureFolder(ResourcesPath + "Enemies");
             for (int i = 0; i < keys.Length; i++)
             {
                 var e = LoadOrCreate<EnemyData>("Enemies/" + keys[i] + ".asset");
@@ -94,7 +111,7 @@ namespace TimeThief.Editor
             string[] hintsEn = {"Attacks a little faster after each strike.", "Sometimes raises a shield. Wait for it to fade.", "Switches defenses. Alternate tapping and holding.", "Slowly restores time. Keep stealing!", "Every third strike hits harder. Watch the flash.", "Every third strike changes its attack type.", "Reflects every fourth tap. Use magic.", "Restores more of the time it steals.", "Long magic holds weaken. Take short breaks.", "Speeds up when low on time. Finish the fight!"};
             string[] bk = {"clerk", "witch", "moth", "countess", "archivist", "owl", "witch", "clerk", "countess", "archivist"};
             c.bosses = new BossData[10];
-            Directory.CreateDirectory(ResourcesPath + "Bosses");
+            EnsureFolder(ResourcesPath + "Bosses");
             for (int i = 0; i < 10; i++)
             {
                 var b = LoadOrCreate<BossData>("Bosses/Boss" + (i + 1).ToString("D2") + ".asset");
@@ -116,8 +133,9 @@ namespace TimeThief.Editor
             }
 
             EditorUtility.SetDirty(c);
+            ConfigureAudio(c);
             AssetDatabase.SaveAssets();
-            Directory.CreateDirectory("Assets/TimeThief/Scenes");
+            EnsureFolder("Assets/TimeThief/Scenes");
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var camera = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));
             camera.tag = "MainCamera";
@@ -143,11 +161,33 @@ namespace TimeThief.Editor
             return asset;
         }
 
+        static void EnsureFolder(string path)
+        {
+            if (AssetDatabase.IsValidFolder(path)) return;
+            var parent = Path.GetDirectoryName(path).Replace('\\', '/');
+            AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
+        }
+
         static void Settings()
         {
+            // UI is constructed at runtime, so the scene dependency scanner cannot find its shader.
+            var graphics = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset")[0]);
+            var shaders = graphics.FindProperty("m_AlwaysIncludedShaders");
+            var uiShader = Shader.Find("UI/Default");
+            if (!uiShader) throw new Exception("UI/Default shader is missing.");
+            bool included = false;
+            for (int i = 0; i < shaders.arraySize; i++)
+                included |= shaders.GetArrayElementAtIndex(i).objectReferenceValue == uiShader;
+            if (!included)
+            {
+                shaders.InsertArrayElementAtIndex(shaders.arraySize);
+                shaders.GetArrayElementAtIndex(shaders.arraySize - 1).objectReferenceValue = uiShader;
+                graphics.ApplyModifiedPropertiesWithoutUndo();
+            }
             PlayerSettings.companyName = "Xalava";
             PlayerSettings.productName = "TimeThief";
             PlayerSettings.bundleVersion = "1.0.0";
+            PlayerSettings.SplashScreen.show = false;
             PlayerSettings.colorSpace = ColorSpace.Gamma;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -173,12 +213,47 @@ namespace TimeThief.Editor
             if (!File.Exists(ResourcesPath + "GameConfig.asset") || !File.Exists("Assets/TimeThief/Scenes/Main.unity"))
                 Prepare();
             else
+            {
                 Settings();
+                AssetDatabase.SaveAssets();
+            }
             SelfTests.Run();
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes = new[]{"Assets/TimeThief/Scenes/Main.unity"}, locationPathName = Path.GetFullPath("../Builds/WebGL"), target = BuildTarget.WebGL, options = BuildOptions.None});
             Debug.Log("TIME_THIEF_BUILD " + report.summary.result + " bytes=" + report.summary.totalSize);
             if (report.summary.result != BuildResult.Succeeded)
                 throw new Exception("WebGL build failed");
+        }
+
+        static void ConfigureAudio(GameConfig c)
+        {
+            foreach (var file in Directory.GetFiles(ResourcesPath + "Audio", "*.wav"))
+            {
+                var importer = (AudioImporter)AssetImporter.GetAtPath(file.Replace('\\', '/'));
+                var sample = importer.defaultSampleSettings;
+                sample.compressionFormat = AudioCompressionFormat.Vorbis;
+                sample.quality = .6f;
+                sample.loadType = AudioClipLoadType.CompressedInMemory;
+                importer.defaultSampleSettings = sample;
+                importer.SaveAndReimport();
+            }
+            AudioClip Clip(string key) => Resources.Load<AudioClip>("Audio/" + key);
+            c.menuMusic = Clip("minute-shop");
+            c.normalBattleMusic = Clip("second-thief");
+            c.proceduralBossMusic = Clip("last-hour");
+            c.musicVolume = .42f;
+            c.physicalHitSound = Clip("hit"); c.criticalSound = Clip("critical");
+            c.magicStartSound = Clip("magic-start"); c.magicLoopSound = Clip("magic-loop");
+            c.enemyPhysicalAttackSound = Clip("enemy-hit"); c.enemyMagicAttackSound = Clip("enemy-magic");
+            c.victorySound = Clip("victory"); c.upgradeSound = Clip("upgrade");
+            c.shopSound = Clip("shop"); c.gameOverSound = Clip("game-over");
+            c.miniBossIntroSound = Clip("miniboss-intro"); c.bossIntroSound = Clip("boss-intro");
+            foreach (var boss in c.bosses)
+            {
+                boss.bossMusic = c.proceduralBossMusic;
+                EditorUtility.SetDirty(boss);
+            }
+            EditorUtility.SetDirty(c);
+            AssetDatabase.SaveAssets();
         }
     }
 
@@ -198,6 +273,9 @@ namespace TimeThief.Editor
             checks = 0;
             var c = Resources.Load<GameConfig>("GameConfig");
             Check(c && c.bosses.Length == 10, "10 boss assets");
+            Check(Resources.Load<TMP_FontAsset>("Fonts/Nunito SDF").faceInfo.styleName == "Bold", "static bold font for readable UI");
+            Check(c.menuMusic && c.normalBattleMusic && c.proceduralBossMusic, "three original music loops assigned");
+            Check(c.bosses.All(b => b.bossMusic != null), "music assigned to every boss");
             var p = new PlayerStats{CurrentTime = 4.9f, MaxTime = 5};
             Check(Mathf.Abs(p.AddTime(.5f) - .1f) < .0001f, "capacity caps transferred time");
             Check(p.LoseTime(999) == 5 && p.CurrentTime == 0, "overkill cannot steal phantom time");

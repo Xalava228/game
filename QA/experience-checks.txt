@@ -1,0 +1,1 @@
+17 real WebGL checks passed: audio playback, mute, pause, focus, combat feedback, tap, pointer exit, defeat and English.

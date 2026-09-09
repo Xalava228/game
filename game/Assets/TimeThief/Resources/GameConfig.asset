@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5eaa7299fcccb0949af107620a50e2ea, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::TimeThief.GameConfig
+  startingStats:
+    CurrentTime: 5
+    MaxTime: 5
+    Attack: 1
+    CritChance: 0.05
+    CritMultiplier: 2
+    Armor: 0
+    MagicResistance: 0
+  holdThreshold: 0.25
+  physicalSteal: 1
+  magicStealPerSecond: 2.6
+  armorConstant: 10
+  resistanceConstant: 10
+  telegraphDuration: 0.6
+  minimumCooldown: 0.8
+  baseEnemyTime: 3
+  timePerLevel: 0.18
+  timePerSqrtLevel: 0.6
+  baseEnemyPower: 0.25
+  powerPerSqrtLevel: 0.12
+  baseCooldown: 4.5
+  cooldownDecay: 0.22
+  growth:
+    CurrentTime: 0
+    MaxTime: 0.04
+    Attack: 0.015
+    CritChance: 0.0001
+    CritMultiplier: 0.001
+    Armor: 0.02
+    MagicResistance: 0.02
+  enemies:
+  - {fileID: 11400000, guid: 309e8045641e15c4fa6a52150ad8ad55, type: 2}
+  - {fileID: 11400000, guid: 6a896ffff42bb484a85546ee1b7296b2, type: 2}
+  - {fileID: 11400000, guid: 73d803e5ef40161429a4e8f424474993, type: 2}
+  - {fileID: 11400000, guid: a56f9f85bc4f0b34aba36e51332d8e55, type: 2}
+  - {fileID: 11400000, guid: 11a720082ce22164ab23847eceab2563, type: 2}
+  - {fileID: 11400000, guid: caa2b37fc25d0d24cbc7eeb2007a4da2, type: 2}
+  - {fileID: 11400000, guid: 81e70605d0035264c9c3f0f9127b896e, type: 2}
+  - {fileID: 11400000, guid: a16c522388c50db479925d0adcfe76b9, type: 2}
+  bosses:
+  - {fileID: 11400000, guid: a223d5a668ca9dd4280eb825098b7490, type: 2}
+  - {fileID: 11400000, guid: fc287e540540f3643b5cf106258907d0, type: 2}
+  - {fileID: 11400000, guid: 466b6c43bb233084da2024a7a1679a4b, type: 2}
+  - {fileID: 11400000, guid: 2c37f37d42b7f3943b20c8cf3339ee65, type: 2}
+  - {fileID: 11400000, guid: 54e872ae98fef9449bc44cf0f88d6038, type: 2}
+  - {fileID: 11400000, guid: 4dec69acc6abf9c4ca3c70e051a6810c, type: 2}
+  - {fileID: 11400000, guid: 1951612e67de1964e87eac0ba05a3b77, type: 2}
+  - {fileID: 11400000, guid: 7eb9fd838240c1d4d85b23298a4e86b5, type: 2}
+  - {fileID: 11400000, guid: 2c62fb1256a0b774cbc45d1f6411ca98, type: 2}
+  - {fileID: 11400000, guid: f22b55a0be26e1e43aeae33699b67ec5, type: 2}
+  menuMusic: {fileID: 8300000, guid: fa287c2197e992a40b86c58d12514a0b, type: 3}
+  normalBattleMusic: {fileID: 8300000, guid: 0501acfd8420c7945970a76b3e4d6602, type: 3}
+  proceduralBossMusic: {fileID: 8300000, guid: 7a8f2be6344baf74c85c567f391bd459, type: 3}
+  physicalHitSound: {fileID: 8300000, guid: f071c2d340fdec140bcb88b52a398dc7, type: 3}
+  criticalSound: {fileID: 8300000, guid: 7c6962ef454104d48bab00fad3b756a9, type: 3}
+  magicStartSound: {fileID: 8300000, guid: 5caf2582dce660c48aa752cee1bd8b48, type: 3}
+  magicLoopSound: {fileID: 8300000, guid: 330cd7d59cb86e14baeda4f72a6ad72a, type: 3}
+  enemyPhysicalAttackSound: {fileID: 8300000, guid: 1043055027d009647b7d886fac829760, type: 3}
+  enemyMagicAttackSound: {fileID: 8300000, guid: 186ba149870b93048b21d48e09aca707, type: 3}
+  victorySound: {fileID: 8300000, guid: 1f107515e39dc4c43b6625447424c0e9, type: 3}
+  miniBossIntroSound: {fileID: 8300000, guid: 254c6df1feb521f4e8c8a186d67dc963, type: 3}
+  bossIntroSound: {fileID: 8300000, guid: f5be8c741e2c3e140b3715d4002dd991, type: 3}
+  upgradeSound: {fileID: 8300000, guid: bf3c4d168c9830f44a6f205219eeb855, type: 3}
+  shopSound: {fileID: 8300000, guid: beb717e352602e34787a501dec6224bb, type: 3}
+  gameOverSound: {fileID: 8300000, guid: 639c45c1a54379545b1312f37835bffc, type: 3}
+  crossfadeDuration: 1.5
+  musicVolume: 0.42

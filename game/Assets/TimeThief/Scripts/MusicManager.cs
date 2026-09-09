@@ -30,6 +30,7 @@ namespace TimeThief
         }
 
         public void PlayNormalMusic() => CrossfadeTo(normalBattleMusic);
+        public void PlayMenuMusic() => CrossfadeTo(config.menuMusic ? config.menuMusic : normalBattleMusic);
         public void PlayBossMusic(AudioClip clip) => CrossfadeTo(clip ? clip : normalBattleMusic);
         public void CrossfadeTo(AudioClip clip)
         {
@@ -81,6 +82,7 @@ namespace TimeThief
             if (on && config.magicLoopSound && !magic.isPlaying)
             {
                 magic.clip = config.magicLoopSound;
+                magic.volume = .3f;
                 magic.Play();
             }
             else if (!on)

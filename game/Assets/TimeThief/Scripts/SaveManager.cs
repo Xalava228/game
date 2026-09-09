@@ -11,6 +11,8 @@ namespace TimeThief
         public bool activeRun, reviveUsed, rewardDoubled;
         public string phase = "Intro";
         public PlayerStats player;
+        public Reward lastGift;
+        public float[] lastGrowth;
         public ShopManager shop;
         public float enemyTime, enemyTimer, elapsed;
         public int enemyAttacks, physicalHits;
@@ -37,6 +39,14 @@ namespace TimeThief
                     return new SaveData();
                 d.bestLevel = Mathf.Max(0, d.bestLevel);
                 d.totalEnemiesDefeated = Mathf.Max(0, d.totalEnemiesDefeated);
+                if (d.lastGift != null && ((int)d.lastGift.stat < 0 || (int)d.lastGift.stat > 5 || !float.IsFinite(d.lastGift.amount) || d.lastGift.amount <= 0))
+                    d.lastGift = null;
+                if (d.lastGrowth != null)
+                {
+                    bool validGrowth = d.lastGrowth.Length == 6;
+                    foreach (float value in d.lastGrowth) validGrowth &= float.IsFinite(value) && value >= 0;
+                    if (!validGrowth) d.lastGrowth = null;
+                }
                 if (d.level < 1 || d.level > 10000000 || d.player == null || !d.player.Valid() || d.shop == null || d.shop.shards < 0 || d.shop.maxTimePurchases < 0 || d.shop.maxTimePurchases > 100000 || d.shop.attackPurchases < 0 || d.shop.attackPurchases > 100000 || d.shop.buffs == null || d.shop.buffs.Count > 7 || !float.IsFinite(d.enemyTime) || !float.IsFinite(d.enemyTimer) || !float.IsFinite(d.elapsed))
                     d.activeRun = false;
                 if (d.shop?.buffs != null)

@@ -1,0 +1,1 @@
+7 WebGL mobile-emulation checks passed at 390x844, DPR 2, touch events and 844x390 landscape. Physical-device testing is still separate.

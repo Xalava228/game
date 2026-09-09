@@ -24,7 +24,7 @@ namespace TimeThief {
   public GameConfig config;public PlayerStats player=new PlayerStats();public ShopManager shop=new ShopManager();public bool IsFighting=true;public bool won,lost;public TestUI ui=new TestUI();public TestAudio music=new TestAudio();
   public void Win(){won=true;IsFighting=false;}public void Lose(){lost=true;IsFighting=false;}
  }
- public class TestUI {public void Hit(float x,bool c){}public void EnemyHit(bool m){}}
+ public class TestUI {public float taken;public bool magic,heavy,reflected;public void Hit(float x,bool c){}public void EnemyHit(float t,bool m,bool h=false,bool r=false){taken=t;magic=m;heavy=h;reflected=r;}}
  public class TestAudio {public void Sfx(UnityEngine.AudioClip clip){}}
 }
 class ModelChecks {
@@ -38,6 +38,9 @@ class ModelChecks {
   var game=new GameManager{config=c};var enemy=new EnemyController(game,EnemyGenerator.Generate(c,1,1));enemy.time=.2f;game.player.CurrentTime=1;enemy.Hit(false);Check(game.won&&Math.Abs(game.player.CurrentTime-1.2f)<.0001,"lethal hit transfers actual time");float after=game.player.CurrentTime;enemy.Hit(false);Check(game.player.CurrentTime==after,"hits after victory disabled");
   game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,2,1));float original=enemy.time;for(int i=0;i<30;i++)enemy.Hit(true,1f/60);Check(Math.Abs(original-enemy.time-1.3f)<.001,"magic is frame-time based");
   game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,20,1));enemy.time=enemy.data.maxTime;enemy.timer=.001f;enemy.Tick(.01f);Check(enemy.time<=enemy.data.maxTime&&game.player.CurrentTime<5,"enemy steals, with capped refill");
+  Check(Math.Abs(game.ui.taken-(5-game.player.CurrentTime))<.0001,"damage notice uses actual removed time");
+  game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,125,1));enemy.data.ability=Ability.HeavyStrike;enemy.data.attackType=AttackType.Magic;enemy.attackCount=2;enemy.timer=0;enemy.Tick(.01f);Check(game.ui.heavy&&game.ui.magic&&game.ui.taken>0,"third heavy strike is identified with its damage type");
+  game=new GameManager{config=c};game.player.Attack=.01f;enemy=new EnemyController(game,EnemyGenerator.Generate(c,175,1));enemy.data.ability=Ability.Thorns;for(int i=0;i<4;i++)enemy.Hit(false);Check(game.ui.reflected&&game.ui.taken>0&&!game.ui.heavy,"reflected fourth tap has distinct feedback");
   var shop=new ShopManager{shards=100};p=new PlayerStats();Check(shop.Buy(0,p)&&p.MaxTime==6,"shop max time");Check(shop.Buy(1,p)&&Math.Abs(p.Attack-1.15)<.001,"shop attack");Check(shop.Buy(2,p)&&!shop.Buy(2,p),"unique buffs");shop.EndBattle();shop.EndBattle();Check(shop.Has(BuffType.Armor),"buff after 2 battles");shop.EndBattle();Check(!shop.Has(BuffType.Armor),"buff expires at 3");Check(RewardManager.Choices(1,25,true).Select(r=>r.stat).Distinct().Count()==3,"three different gifts");
   // First five encounters are winnable using either taps or hold with a human-sized response delay.
   foreach(bool magic in new[]{false,true})for(int level=1;level<=5;level++){game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,level,3));for(int frame=0;frame<900&&game.IsFighting;frame++){game.player.LoseTime(1f/60);if(game.player.CurrentTime<=0){game.Lose();break;}enemy.Tick(1f/60);if(frame>=30){if(magic)enemy.Hit(true,1f/60);else if(frame%20==0)enemy.Hit(false);}}Check(game.won,"tutorial winnable: "+level+" magic="+magic);}

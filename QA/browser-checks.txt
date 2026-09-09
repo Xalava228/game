@@ -1,0 +1,2 @@
+13 real Unity WebGL browser checks passed.
+Desktop 1600x900, portrait 390x844, tablet 1024x768.

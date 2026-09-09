@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43ff7f42c7b516445a8fd13b294368bc, type: 3}
+  m_Name: Boss02
+  m_EditorClassIdentifier: Assembly-CSharp::TimeThief.BossData
+  bossName: "\u041B\u0435\u0434\u0438 \u041C\u0430\u044F\u0442\u043D\u0438\u0446\u0430"
+  nameEn: Lady Pendula
+  hintRu: "\u0418\u043D\u043E\u0433\u0434\u0430 \u043F\u043E\u0434\u043D\u0438\u043C\u0430\u0435\u0442
+    \u0449\u0438\u0442. \u0414\u043E\u0436\u0434\u0438\u0441\u044C, \u043F\u043E\u043A\u0430
+    \u043E\u043D \u043F\u043E\u0433\u0430\u0441\u043D\u0435\u0442."
+  hintEn: Sometimes raises a shield. Wait for it to fade.
+  artKey: boss-02
+  bossSprite: {fileID: 21300000, guid: c6accb107578e744d81fc33ae09a4866, type: 3}
+  bossThemeColor: {r: 0.5, g: 0.4, b: 0.7, a: 1}
+  bossMusic: {fileID: 8300000, guid: 7a8f2be6344baf74c85c567f391bd459, type: 3}
+  baseMaxTime: 9
+  physicalDefense: 0.3
+  magicDefense: 0
+  attackPower: 0.36
+  attackCooldown: 3.8
+  rewardMultiplier: 1
+  attackType: 1
+  specialAbilityType: 2
+  specialAbilityValues: {x: 6, y: 0.3, z: 1.5}

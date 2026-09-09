@@ -108,6 +108,7 @@ namespace TimeThief
             level = save.level;
             defeated = save.defeated;
             lastReward = save.lastReward;
+            miniReward = save.lastGift;
             reviveUsed = save.reviveUsed;
             rewardDoubled = save.rewardDoubled;
             player = save.player.Copy();
@@ -136,7 +137,6 @@ namespace TimeThief
                 SetState(GameState.Intro);
             }
 
-            PlayEncounterMusic();
         }
 
         void PlayEncounterMusic()
@@ -186,10 +186,12 @@ namespace TimeThief
             lastReward = RewardManager.Shards(enemy.data) * (shop.Has(BuffType.DoubleShards) ? 2 : 1);
             shop.shards += lastReward;
             shop.EndBattle();
+            var previous = player.Copy();
             player.Grow(config.growth);
+            save.lastGrowth = new float[6];
+            for (int i = 0; i < 6; i++) save.lastGrowth[i] = player.Get((Stat)i) - previous.Get((Stat)i);
             player.AddTime(.35f);
             music.Sfx(config.victorySound);
-            music.PlayNormalMusic();
             if (enemy.data.type == EncounterType.Boss)
             {
                 save.totalBossesDefeated++;
@@ -214,7 +216,12 @@ namespace TimeThief
         {
             if (state != GameState.RewardSelection || !ActionsReady || i < 0 || i >= rewards.Length)
                 return;
-            rewards[i].Apply(player);
+            var chosen = rewards[i];
+            if (chosen.stat == Stat.CritChance && player.CritChance >= .75f) return;
+            float before = player.Get(chosen.stat);
+            chosen.Apply(player);
+            miniReward = new Reward { stat = chosen.stat, percent = chosen.percent,
+                amount = chosen.percent ? chosen.amount : player.Get(chosen.stat) - before };
             SetState(GameState.Victory);
             music.Sfx(config.upgradeSound);
             Persist();
@@ -363,6 +370,10 @@ namespace TimeThief
         public void SetState(GameState s)
         {
             state = s;
+            if (s == GameState.Intro || s == GameState.Fighting)
+                PlayEncounterMusic();
+            else if (s != GameState.Transition)
+                music?.PlayMenuMusic();
             guard = Time.unscaledTime + (s == GameState.Victory || s == GameState.RewardSelection || s == GameState.GameOver ? .65f : .15f);
             ui?.input?.Cancel();
             platform?.Gameplay(IsFighting);
@@ -380,6 +391,7 @@ namespace TimeThief
                 save.level = level;
                 save.defeated = defeated;
                 save.lastReward = lastReward;
+                save.lastGift = miniReward;
                 save.player = player.Copy();
                 save.shop = shop;
                 save.reviveUsed = reviveUsed;

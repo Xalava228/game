@@ -2,6 +2,8 @@
 
 Название: **Вор времени** / **Time Thief**. Жанр: 2D clicker / boss-rush. Языки: русский и английский. Устройства: компьютер и смартфон; портретная и горизонтальная раскладки. Управление: мышь или один палец.
 
+Архив: `D:\Game\Release\TimeThief-Yandex-1.0.0.zip`. Материалы карточки: `D:\Game\Release\Store` — собственная иконка 512×512, обложки RU/EN 960×540 и скриншоты плеера. Сверяйте требования к материалам с текущими полями консоли.
+
 ## Интеграция
 
 - На платформе SDK загружается с `/sdk.js` и инициализируется через YaGames.init(). Локальный адрес запускает автономную игру без рекламы.
@@ -32,6 +34,12 @@
 **Полное описание:** В Бюро потерянных минут всё измеряется временем — даже твоя сила. Встречай мотыльков, талонников и великих хранителей, отнимай их секунды и береги свои. Выбирай между быстрыми ударами и непрерывной магией, замечай защиту противника и улучшай шесть характеристик. Мини-боссы появляются каждые десять уровней, великие хранители — каждые двадцать пять. Десять особых встреч открывают дорогу к бесконечному режиму. Забег сохраняется: возвращайся к нему, когда удобно.
 
 **Управление:** короткое нажатие по противнику — физическая атака; удерживание — магия. В магазине покупай усиления за осколки времени. Во время меню и между боями таймер остановлен.
+
+**English short description:** Steal seconds from unusual keepers! Tap to strike, hold to cast magic, collect upgrades and see how far your run can go.
+
+**English full description:** At the Bureau of Lost Minutes, everything is measured in time — even your strength. Meet moths, ticket clerks and grand keepers, steal their seconds and protect your own. Switch between quick physical strikes and continuous magic, watch your opponent's defenses and improve six stats. Mini-bosses appear every ten levels and grand keepers every twenty-five. Ten special encounters lead into an endless run. Your progress is saved, so you can return whenever you like.
+
+**English controls:** Tap the enemy for a physical attack; hold to cast magic. Buy upgrades with time shards in the shop. Your timer stops in menus and between battles.
 
 ## Официальные источники, проверенные 09.09.2026
 
