@@ -41,3 +41,7 @@ sysinfo.txt
 *.unitypackage
 
 # Do not ignore Unity .meta files: they preserve asset identity.
+/LocalData/
+/QA/*.log
+/Release/
+/game/Artifacts/
