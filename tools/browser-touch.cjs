@@ -12,7 +12,7 @@ const snap=async n=>page.screenshot({path:qa+'/'+n+'.png',scale:'css'});
 const hold=async ms=>{await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:195,y:430}]});await page.waitForTimeout(ms);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(800);};
 try{
  await page.goto('http://127.0.0.1:8080');await page.waitForFunction(()=>window.TimeThiefSDK?.readyCalled&&TimeThiefSDK.unity,null,{timeout:120000});await page.waitForTimeout(800);await snap('17-mobile-menu');
- await tap(195,598);check((await save()).phase==='Intro','touch starts a run');await snap('18-mobile-intro');
+ await tap(195,656);check((await save()).phase==='Intro','touch starts a run');await snap('18-mobile-intro');
  await tap(297,751,80);for(let i=0;i<6;i++)await tap(195,430,130);await page.waitForTimeout(750);let s=await save();check(s.phase==='Victory'&&s.defeated===1&&s.physicalHits>=3,'touch taps defeat magic keeper');
  await tap(287,767);check((await save()).level===2,'touch advances one level');await tap(297,751);await tap(195,430,150);s=await save();check(s.physicalHits===1,'short touch is one physical attack');
  await hold(3800);check((await save()).phase==='Victory','tap and hold can be combined on mobile');

@@ -3,12 +3,6 @@
     "name": "archivist.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1700,
     "opaqueSamples": 1919
   },
@@ -16,12 +10,6 @@
     "name": "bookbat.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      1,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2200,
     "opaqueSamples": 1431
   },
@@ -29,12 +17,6 @@
     "name": "boss-01.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      0,
-      0
-    ],
     "clearSamples": 1431,
     "opaqueSamples": 2218
   },
@@ -42,12 +24,6 @@
     "name": "boss-02.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1899,
     "opaqueSamples": 1585
   },
@@ -55,12 +31,6 @@
     "name": "boss-03.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2031,
     "opaqueSamples": 1653
   },
@@ -68,12 +38,6 @@
     "name": "boss-04.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1129,
     "opaqueSamples": 1689
   },
@@ -81,12 +45,6 @@
     "name": "boss-05.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1867,
     "opaqueSamples": 1801
   },
@@ -94,12 +52,6 @@
     "name": "boss-06.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1935,
     "opaqueSamples": 1516
   },
@@ -107,12 +59,6 @@
     "name": "boss-07.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2070,
     "opaqueSamples": 1642
   },
@@ -120,12 +66,6 @@
     "name": "boss-08.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      0,
-      0
-    ],
     "clearSamples": 1595,
     "opaqueSamples": 2109
   },
@@ -133,12 +73,6 @@
     "name": "boss-09.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1480,
     "opaqueSamples": 1663
   },
@@ -146,12 +80,6 @@
     "name": "boss-10.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1648,
     "opaqueSamples": 1673
   },
@@ -159,12 +87,6 @@
     "name": "clerk.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2558,
     "opaqueSamples": 1143
   },
@@ -172,12 +94,6 @@
     "name": "clockcrab.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2085,
     "opaqueSamples": 1693
   },
@@ -185,12 +101,6 @@
     "name": "countess.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      0,
-      0
-    ],
     "clearSamples": 1709,
     "opaqueSamples": 2009
   },
@@ -198,12 +108,6 @@
     "name": "gearfox.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      0,
-      0
-    ],
     "clearSamples": 1737,
     "opaqueSamples": 1962
   },
@@ -211,12 +115,6 @@
     "name": "hero.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1980,
     "opaqueSamples": 1598
   },
@@ -224,12 +122,6 @@
     "name": "inkraven.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1595,
     "opaqueSamples": 2012
   },
@@ -237,25 +129,20 @@
     "name": "lanternghost.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2264,
     "opaqueSamples": 1243
+  },
+  {
+    "name": "logo.png",
+    "width": 1254,
+    "height": 1254,
+    "clearSamples": 1527,
+    "opaqueSamples": 2396
   },
   {
     "name": "mirrorjelly.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2162,
     "opaqueSamples": 1404
   },
@@ -263,12 +150,6 @@
     "name": "moth.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 1492,
     "opaqueSamples": 2245
   },
@@ -276,12 +157,6 @@
     "name": "owl.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2120,
     "opaqueSamples": 1669
   },
@@ -289,12 +164,6 @@
     "name": "scrollserpent.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2197,
     "opaqueSamples": 1556
   },
@@ -302,12 +171,6 @@
     "name": "slime.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      0,
-      0
-    ],
     "clearSamples": 1923,
     "opaqueSamples": 1885
   },
@@ -315,12 +178,6 @@
     "name": "timebeetle.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2188,
     "opaqueSamples": 1551
   },
@@ -328,12 +185,6 @@
     "name": "witch.png",
     "width": 1254,
     "height": 1254,
-    "corners": [
-      0,
-      0,
-      1,
-      0
-    ],
     "clearSamples": 2118,
     "opaqueSamples": 1512
   }

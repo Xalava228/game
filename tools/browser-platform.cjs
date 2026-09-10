@@ -9,10 +9,11 @@ const fs=require('fs'),assert=require('assert'),{chromium}=require('D:/Game/Work
  const check=(ok,label)=>{assert.ok(ok,label);checks++;console.log('PASS '+label);};
  const save=async()=>{await page.evaluate(()=>TimeThiefSDK.unity.SendMessage('TimeThief','Persist'));await page.waitForTimeout(100);return page.evaluate(()=>JSON.parse(TimeThiefSDK.saved));};
  const click=async(x,y,delay=250)=>{await page.mouse.click(x,y);await page.waitForTimeout(delay);};
+ await page.addInitScript(()=>{if(window.name.startsWith('TT_FIXTURE:')){localStorage.setItem('TimeThiefSaveV1',window.name.slice(11));window.name='';}});
  try{
  await page.goto('http://platform.test:8080');await page.waitForFunction(()=>window.TimeThiefSDK?.unity&&TimeThiefSDK.readyCalled,null,{timeout:120000});await page.waitForTimeout(800);
  check(await page.evaluate(()=>__platform.ready===1&&__platform.start===0),'Game Ready once; menu does not report gameplay');
- await click(448,639);await click(1046,801,60);let a=await save();await page.waitForTimeout(250);let b=await save();
+ await click(424,587);await click(1046,801,60);let a=await save();await page.waitForTimeout(250);let b=await save();
  check(Math.abs((b.enemyTime-a.enemyTime)-(a.player.CurrentTime-b.player.CurrentTime))<.01,'real player transfers every elapsed second to enemy');
  await page.evaluate(()=>__platform.events.game_api_pause());a=await save();await page.waitForTimeout(450);b=await save();
  check(a.player.CurrentTime===b.player.CurrentTime&&await page.evaluate(()=>!TimeThiefSDK.playing),'platform event pauses Unity and Gameplay API');
@@ -21,6 +22,14 @@ const fs=require('fs'),assert=require('assert'),{chromium}=require('D:/Game/Work
  await click(1088,693);await page.evaluate(()=>{__ad.onOpen();__ad.onClose();});await page.waitForTimeout(250);b=await save();check(b.shop.shards===a.shop.shards&&!b.rewardDoubled,'closing rewarded ad does not grant shards');
  await click(1088,693);await page.evaluate(()=>{__ad.onOpen();__ad.onRewarded();__ad.onRewarded();__ad.onClose();__ad.onClose();});await page.waitForTimeout(250);b=await save();check(b.rewardDoubled&&b.shop.shards===a.shop.shards+a.lastReward,'reward granted exactly once through JS and C# bridge');
  await page.waitForTimeout(12500);check(await page.evaluate(()=>__platform.cloud.some(d=>d.timeThief.rewardDoubled)),'updated run reaches cloud setData');
+ const fixture={...b,phase:'GameOver',reviveUsed:false,player:{...b.player,CurrentTime:0},updatedAt:Date.now()};
+ await page.evaluate(f=>window.name='TT_FIXTURE:'+JSON.stringify(f),fixture);await page.reload();await page.waitForFunction(()=>TimeThiefSDK?.unity&&TimeThiefSDK.readyCalled,null,{timeout:120000});await page.waitForTimeout(800);await click(424,587,800);
+ check((await save()).phase==='GameOver','defeat survives reload before a revive');
+ await click(1056,635);await page.evaluate(()=>{__ad.onOpen();__ad.onClose();});await page.waitForTimeout(300);
+ check(!(await save()).reviveUsed&&(await save()).phase==='GameOver','unrewarded close cannot revive the player');
+ await click(1056,635);await page.evaluate(()=>{__ad.onOpen();__ad.onRewarded();__ad.onRewarded();__ad.onClose();});await page.waitForTimeout(300);b=await save();
+ check(b.reviveUsed&&b.phase==='Intro'&&b.player.CurrentTime===b.player.MaxTime&&b.enemyTimer>=2,'rewarded revive restores full reserve once and waits for player');
+ await page.reload();await page.waitForFunction(()=>TimeThiefSDK?.unity&&TimeThiefSDK.readyCalled,null,{timeout:120000});await page.waitForTimeout(800);await click(424,587);check((await save()).reviveUsed,'revive limit persists after reload');
  check(logs.length===0,'no JavaScript errors in platform integration');
  fs.writeFileSync(__dirname+'/../QA/platform-checks.txt',checks+' full WebGL / mocked Yandex integration checks passed. Live platform validation remains separate.\n');
  }finally{await browser.close();}

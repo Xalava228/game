@@ -26,14 +26,14 @@ const qa=path.resolve(__dirname,'../QA');
  const energy=async()=>page.evaluate(()=>{const a=window.__musicAnalyser;if(!a)return -1;const b=new Float32Array(a.fftSize);a.getFloatTimeDomainData(b);return Math.sqrt(b.reduce((s,v)=>s+v*v,0)/b.length);});
  await page.addInitScript(()=>{if(window.name.startsWith('TT_FIXTURE:')){localStorage.setItem('TimeThiefSaveV1',window.name.slice(11));window.name='';}});
  let base;
- const fixture=async overrides=>{const s={...base,...overrides,updatedAt:Date.now()};await page.evaluate(f=>window.name='TT_FIXTURE:'+JSON.stringify(f),s);await page.reload();await ready();await click(448,639);};
+ const fixture=async overrides=>{const s={...base,...overrides,updatedAt:Date.now()};await page.evaluate(f=>window.name='TT_FIXTURE:'+JSON.stringify(f),s);await page.reload();await ready();await click(424,587);};
  try {
    await page.goto('http://127.0.0.1:8080');await ready();
-   await click(448,639);base=await save();
+   await click(424,587);base=await save();
    await page.waitForTimeout(1600);check(await energy()>.0001,'music produces real audio after user gesture');
    await click(1411,48);await page.waitForTimeout(200);check(await energy()<.00001,'sound switch mutes all output');
    await click(1411,48);await page.waitForTimeout(600);check(await energy()>.0001,'sound switch restores music');
-   await page.reload();await ready();await click(448,639);check((await save()).level===1,'resume remains available after audio toggle');
+   await page.reload();await ready();await click(424,587);check((await save()).level===1,'resume remains available after audio toggle');
    const player={...base.player,CurrentTime:100,MaxTime:100,Attack:.5,CritChance:.75};
    await fixture({level:125,phase:'Intro',enemyTime:10,enemyTimer:.35,enemyAttacks:2,elapsed:0,physicalHits:0,player});
    await click(1046,801,900);await snap('13-heavy-boss-strike');

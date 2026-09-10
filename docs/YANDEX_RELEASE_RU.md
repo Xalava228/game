@@ -1,6 +1,6 @@
-# Яндекс Игры: выпуск 1.1.0
+# Яндекс Игры: выпуск 1.4.0
 
-Проверка документации: **10.09.2026**. Игра: **Вор времени / Time Thief**, RU/EN, мышь и сенсорное управление. Архив: D:\Game\Release\TimeThief-Yandex-1.1.0.zip. Материалы карточки: D:\Game\Release\Store.
+Проверка документации: **10.09.2026**. Игра: **Вор времени / Time Thief**, RU/EN, мышь и сенсорное управление. Архив: D:\Game\Release\TimeThief-Yandex-1.4.0.zip. Материалы карточки: D:\Game\Release\Store.
 
 ## Реализовано и чем проверяется
 
@@ -18,7 +18,7 @@
 | Экран | Портрет/альбом, safe-area, отсутствие прокрутки; на desktop поле ограничено пропорциями 2:1 в обе стороны | Набор разрешений, поворот |
 | Локализация | Язык из environment.i18n.lang; ручной RU/EN | Английское меню и игровые строки |
 | Содержимое | 16 врагов, 10 самостоятельных боссов, 8 условий, бесконечный забег, магазин и рост | Генерация и игровые сценарии |
-| Материалы | Присланный логотип, собственные SVG, три оригинальные мелодии, 12 эффектов; Nunito OFL | Исходники и лицензия в репозитории |
+| Материалы | 27 PNG с прозрачностью (персонажи и логотип), собственные SVG-иконки, три оригинальные мелодии, 12 эффектов; Nunito и Alegreya SC OFL | Исходники и лицензия в репозитории |
 | Архив | index.html в корне; безопасные имена; ZIP CRC; точное совпадение с проверенной сборкой | verify-release.py |
 
 Подключение и момент готовности сверены с [SDK: подключение](https://yandex.ru/dev/games/doc/ru/sdk/sdk-about) и [Loading/Gameplay API](https://yandex.ru/dev/games/doc/ru/sdk/sdk-game-events). Межстраничная реклама вызывается на переходе между боями; она не прерывает серию нажатий. Награды привязаны к onRewarded согласно [рекламному API](https://yandex.ru/dev/games/doc/ru/sdk/sdk-adv).
@@ -53,3 +53,8 @@ setData вызывается с интервалом 12 секунд; каждо
 **English description:** At the Bureau of Lost Minutes, time is your life. Enemies absorb every second you lose; you recover only part of the damage you deal. Tap magical keepers and hold to cast against physical ones. Discover 16 enemy types, changing battle conditions and ten grand keepers, from the Midnight Express to the Last-Hour Bell. Improve six stats, buy upgrades with shards and choose boss gifts. The adventure continues beyond level 250. Your run and record are saved.
 
 **English controls:** Tap the enemy for a physical strike; hold to cast magic. Check the enemy's resistance above it. Time stops in menus and between battles. The shop opens after victory.
+
+
+## Материалы версии 1.4
+
+В Store подготовлены icon-512.png, обложки RU/EN в 960×540 и 800×470, а также настоящие снимки финальной игры. При загрузке выберите размер по текущей форме черновика: актуальные ограничения полей задаются в консоли (п. 5.3 требований). Обложки составлены отдельно, без игровых кнопок и внешней рамки. Рейтинг пока не подключён; план и выделенная область меню описаны в LEADERBOARD_PLAN_RU.md.

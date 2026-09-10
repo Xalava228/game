@@ -12,7 +12,7 @@ namespace TimeThief
         GameManager g;
         Canvas canvas;
         RectTransform root, battle, page, fx, enemyRect;
-        TMP_FontAsset font;
+        TMP_FontAsset font, titleFont;
         Image enemyImage, enemyBar, playerBar;
         TMP_Text enemySeconds, playerSeconds, playerCapacity, warning, buffText, combatMessage, affinity;
         Image combatBanner;
@@ -47,6 +47,7 @@ namespace TimeThief
         {
             g = game;
             font = Resources.Load<TMP_FontAsset>("Fonts/Nunito SDF");
+            titleFont = Resources.Load<TMP_FontAsset>("Fonts/Alegreya SDF");
             if (!font)
             {
                 Debug.LogError("Nunito SDF font is missing. Run Time Thief / Prepare Project.");
@@ -105,14 +106,39 @@ namespace TimeThief
             i.sprite = Art(key);
             i.preserveAspect = preserve;
             i.raycastTarget = false;
-            i.color = color ?? Color.white;
+            i.color = key.StartsWith("icon-") ? TextColor(color ?? cream) : color ?? Color.white;
             return i;
         }
 
+        // Map the existing semantic color roles into the illustrated midnight palette.
+        Color TextColor(Color color)
+        {
+            if (color == ink || color == cream) return Hex("f4ead3");
+            if (color == muted) return Hex("b9bfcb");
+            if (color == mint) return Hex("95e0c5");
+            if (color == purple || color == gold) return Hex("ecd096");
+            if (color == red) return Hex("ffb6a9");
+            return color;
+        }
+        Color SurfaceColor(Color color)
+        {
+            if (color == cream) return Hex("202b40");
+            if (color == ink) return Hex("141e30");
+            if (color == mint) return Hex("20574f");
+            if (color == purple) return Hex("39344f");
+            if (color == red) return Hex("792e36");
+            return color;
+        }
         Image Panel(Transform p, float x, float y, float w, float h, Color color)
         {
             var i = Img(p, "panel", x, y, w, h, color, false);
+            i.color = SurfaceColor(color);
             i.type = Image.Type.Sliced;
+            if (h > .045f && w > .08f)
+            {
+                var frame = Img(i.transform, "frame-line", .5f, .5f, 1, 1, null, false);
+                frame.type = Image.Type.Sliced;
+            }
             return i;
         }
 
@@ -125,7 +151,7 @@ namespace TimeThief
             t.text = value;
             size = Mathf.Max(size, portrait ? 14.5f : 14f);
             t.fontSize = size * unit;
-            t.color = color ?? ink;
+            t.color = TextColor(color ?? ink);
             t.alignment = align;
             t.raycastTarget = false;
             t.textWrappingMode = TextWrappingModes.Normal;
@@ -229,19 +255,19 @@ namespace TimeThief
                 Text(page, g.T("Открываем следующую минуту…", "Opening the next minute…"), .5f, .5f, .8f, .15f, 26);
             if (g.state != GameState.Waiting)
             {
-                Button(root, g.music.Muted ? "×" : "", portrait ? .805f : .882f, .947f, portrait ? .09f : .043f, .062f, () =>
+                Button(root, g.music.Muted ? "×" : "", portrait ? .765f : .882f, .960f, portrait ? .14f : .043f, portrait ? .077f : .062f, () =>
                 {
                     g.music.Toggle();
                     Refresh();
                 }, ink, "sound");
-                Img(root, "logo", portrait ? .08f : .047f, .948f, portrait ? .115f : .052f, .075f);
+                Img(root, "logo", portrait ? .08f : .047f, .960f, portrait ? .115f : .052f, .068f);
             }
 
             if (g.state == GameState.Fighting)
-                Button(root, "", .94f, .947f, portrait ? .09f : .043f, .062f, () => g.TogglePause(), ink, "pause");
+                Button(root, "", portrait ? .92f : .94f, .960f, portrait ? .14f : .043f, portrait ? .077f : .062f, () => g.TogglePause(), ink, "pause");
             pauseShade = Box(root, "Pause", .5f, .5f, 1, 1).gameObject;
             var shade = pauseShade.AddComponent<Image>();
-            shade.color = new Color(.97f, .95f, .90f, .97f);
+            shade.color = new Color(.055f, .075f, .125f, .98f);
             shade.raycastTarget = true;
             Text(pauseShade.transform, g.T("Время на паузе", "Time is paused"), .5f, .59f, .8f, .1f, 38);
             Text(pauseShade.transform, g.T("Твои секунды в безопасности", "Your seconds are safe"), .5f, .49f, .8f, .08f, 18, muted);
@@ -255,14 +281,15 @@ namespace TimeThief
         {
             var e = g.enemy?.data;
             string name = e == null ? "" : g.English ? e.nameEn : e.nameRu;
-            var heading = Panel(battle, .5f, .884f, portrait ? .97f : .63f, .115f, cream);
+            var heading = Panel(battle, .5f, .872f, portrait ? .97f : .63f, .095f, cream);
             var tag = Panel(battle, .45f, .953f, portrait ? .47f : .20f, .038f, ink);
             Text(tag.transform, g.T("УРОВЕНЬ ", "LEVEL ") + g.level, .5f, .5f, .94f, .95f, 16, cream);
             var nameText = Text(heading.transform, name, .5f, .73f, .94f, .47f, portrait ? 25 : 30);
+            if (titleFont) nameText.font = titleFont;
             FitLine(nameText);
             enemySeconds = Text(heading.transform, "", .5f, .28f, .90f, .28f, 16, purple);
-            var rail = Panel(battle, .5f, .832f, portrait ? .88f : .48f, .010f, Hex("ddd5c6"));
-            enemyBar = Img(rail.transform, "panel", .5f, .5f, 1, 1, purple, false);
+            var rail = Panel(battle, .5f, .832f, portrait ? .88f : .48f, .010f, Hex("36445a"));
+            enemyBar = Img(rail.transform, "panel", .5f, .5f, 1, 1, Hex("c9ac72"), false);
             enemyBar.type = Image.Type.Filled;
             enemyBar.fillMethod = Image.FillMethod.Horizontal;
             enemyBar.fillAmount = e == null ? 1 : Mathf.Clamp01(g.enemy.time / e.maxTime);
@@ -296,6 +323,7 @@ namespace TimeThief
             if (g.state == GameState.Intro)
             {
                 warning.gameObject.SetActive(false);
+                buffText.gameObject.SetActive(false);
                 Button(p.transform, g.T("В бой", "Fight"), .775f, .48f, .38f, .62f, () => g.BeginFight(), mint, "play");
             }
         }
@@ -332,31 +360,38 @@ namespace TimeThief
 
         void Menu()
         {
-            float x = portrait ? .5f : .28f;
-            Img(page, "logo", portrait ? .5f : .105f, portrait ? .935f : .875f, portrait ? .14f : .076f, portrait ? .075f : .125f);
-            // Separate unwrapped lines keep the complete brand visible even in short landscape windows.
-            var first = Text(page, g.T("ВОР", "TIME"), x, portrait ? .813f : .697f, portrait ? .91f : .44f, .120f, 88, ink, portrait ? TextAlignmentOptions.Center : TextAlignmentOptions.Left);
-            var second = Text(page, g.T("ВРЕМЕНИ", "THIEF"), x, portrait ? .705f : .562f, portrait ? .91f : .44f, .120f, 88, ink, portrait ? TextAlignmentOptions.Center : TextAlignmentOptions.Left);
+            float x = portrait ? .5f : .265f;
+            // The illustration, title and actions each have their own region.
+            Img(page, "witch", portrait ? .5f : .725f, portrait ? .505f : .49f, portrait ? .94f : .49f, portrait ? .385f : .87f);
+            if (!portrait) Img(page, "moth", .875f, .25f, .19f, .28f);
+            Img(page, "logo", portrait ? .115f : .092f, .943f, portrait ? .15f : .073f, .09f);
+            var first = Text(page, g.T("ВОР", "TIME"), x, portrait ? .852f : .738f, portrait ? .91f : .43f, .12f, 98, gold, portrait ? TextAlignmentOptions.Center : TextAlignmentOptions.Left);
+            var second = Text(page, g.T("ВРЕМЕНИ", "THIEF"), x, portrait ? .759f : .60f, portrait ? .91f : .43f, .12f, 98, gold, portrait ? TextAlignmentOptions.Center : TextAlignmentOptions.Left);
+            if (titleFont) first.font = second.font = titleFont;
             FitLine(first); FitLine(second);
-            if (portrait)
-                Img(page, "moth", .5f, .528f, .76f, .225f);
-            else
-            {
-                Img(page, "witch", .735f, .49f, .40f, .77f);
-                Img(page, "moth", .885f, .255f, .19f, .27f);
-            }
-            Text(page, g.T("Укради секунду. Измени вечность.", "Steal a second. Change forever."), x, portrait ? .385f : .420f, portrait ? .94f : .44f, .055f, 19, muted, portrait ? TextAlignmentOptions.Center : TextAlignmentOptions.Left);
+            Text(page, g.T("Укради секунду. Измени вечность.", "Steal a second. Change forever."), x, portrait ? .289f : .474f, portrait ? .94f : .43f, .042f, 18, muted, portrait ? TextAlignmentOptions.Center : TextAlignmentOptions.Left);
             bool resume = g.save.activeRun;
-            Button(page, resume ? g.T("Продолжить забег", "Continue run") : g.T("Начать приключение", "Start adventure"), x, portrait ? .292f : .29f, portrait ? .86f : .38f, .093f, () =>
+            Button(page, resume ? g.T("Продолжить забег", "Continue run") : g.T("Начать приключение", "Start adventure"), x, portrait ? .223f : .348f, portrait ? .87f : .37f, .085f, () =>
             {
                 if (resume) g.ResumeRun();
                 else g.NewRun();
             }, mint, "play");
             if (resume)
-                Button(page, g.T("Новый забег", "New run"), x, portrait ? .184f : .17f, portrait ? .86f : .38f, .068f, ConfirmNew, ink);
-            Text(page, g.T("РЕКОРД  ", "BEST  ") + g.save.bestLevel + g.T("   /   ПОБЕД  ", "   /   WINS  ") + g.save.totalEnemiesDefeated, x, portrait ? .122f : .075f, portrait ? .94f : .46f, .045f, 13, muted);
-            Button(page, g.music.Muted ? g.T("Звук: выкл.", "Sound: off") : g.T("Звук: вкл.", "Sound: on"), portrait ? .29f : .80f, portrait ? .049f : .947f, portrait ? .40f : .14f, .055f, () => { g.music.Toggle(); Refresh(); }, ink, "sound");
-            Button(page, g.English ? "RU" : "EN", portrait ? .74f : .93f, portrait ? .049f : .947f, portrait ? .18f : .055f, .055f, () => { g.English = !g.English; Refresh(); }, purple);
+                Button(page, g.T("Новый забег", "New run"), x, portrait ? .144f : .245f, portrait ? .87f : .37f, .055f, ConfirmNew, ink);
+            MenuRecords(x);
+            Button(page, g.music.Muted ? "×" : "", portrait ? .765f : .855f, .943f, portrait ? .14f : .043f, portrait ? .077f : .057f, () => { g.music.Toggle(); Refresh(); }, ink, "sound");
+            Button(page, g.English ? "RU" : "EN", portrait ? .92f : .93f, .943f, portrait ? .14f : .055f, portrait ? .077f : .057f, () => { g.English = !g.English; Refresh(); }, ink);
+        }
+
+        void MenuRecords(float x)
+        {
+            // This bounded region can become the Yandex leaderboard entry without moving the main actions.
+            var records = Panel(page, x, portrait ? .065f : .13f, portrait ? .87f : .37f, portrait ? .08f : .12f, cream);
+            records.name = "MenuRecords";
+            Text(records.transform, g.T("РЕКОРД ЗАБЕГА", "RUN RECORD"), .27f, .74f, .47f, .24f, 13, muted);
+            Text(records.transform, g.save.bestLevel.ToString(), .27f, .34f, .45f, .40f, 25, gold);
+            Text(records.transform, g.T("БОССОВ ПОБЕЖДЕНО", "BOSSES DEFEATED"), .76f, .74f, .45f, .24f, 13, muted);
+            Text(records.transform, g.save.totalBossesDefeated.ToString(), .76f, .34f, .45f, .40f, 25, mint);
         }
 
         void ConfirmNew()
@@ -377,8 +412,8 @@ namespace TimeThief
         string AffinityHint()
         {
             bool magic = g.enemy.UsesMagic;
-            return magic ? g.T("МАГИЯ · защита от магии 90%\\nАтакуй КЛИКАМИ", "MAGIC · 90% magic resistance\\nAttack with TAPS")
-                : g.T("ФИЗИКА · защита от клика 90%\\nУДЕРЖИВАЙ для магии", "PHYSICAL · 90% tap resistance\\nHOLD to cast magic");
+            return magic ? g.T("МАГИЯ · защита от магии 90%\nАтакуй КЛИКАМИ", "MAGIC · 90% magic resistance\nAttack with TAPS")
+                : g.T("ФИЗИКА · защита от клика 90%\nУДЕРЖИВАЙ для магии", "PHYSICAL · 90% tap resistance\nHOLD to cast magic");
         }
 
         string Hint()
@@ -538,8 +573,11 @@ namespace TimeThief
             Text(page, g.level.ToString("D2"), x, .58f, .6f, .14f, 76, purple);
             Text(page, g.T("ДОСТИГНУТЫЙ УРОВЕНЬ", "LEVEL REACHED"), x, .475f, .7f, .045f, 14, muted);
             Text(page, g.T("Побеждено: ", "Defeated: ") + g.defeated + g.T("   ·   Рекорд: ", "   ·   Best: ") + g.save.bestLevel, x, .39f, portrait ? .94f : .47f, .08f, 18);
-            if (g.platform.CanAd && !g.reviveUsed)
-                Button(page, g.T("Реклама · вернуть время", "Ad · restore time"), x, .295f, portrait ? .87f : .45f, .07f, () => g.Revive(), purple, "ticket");
+            if (!g.reviveUsed)
+            {
+                Button(page, g.T("Вернуться к жизни · реклама", "Revive · watch an ad"), x, .295f, portrait ? .87f : .45f, .07f, () => g.Revive(), mint, "ticket", g.platform.CanAd);
+                Text(page, g.platform.CanAd ? g.T("Полный запас времени · один раз за забег", "Full time reserve · once per run") : g.T("Реклама сейчас недоступна", "Ads are currently unavailable"), x, .244f, portrait ? .91f : .48f, .026f, 13, muted);
+            }
             Button(page, g.T("Сыграть снова", "Play again"), x, .185f, portrait ? .87f : .45f, .084f, () => g.NewRun(), mint, "play");
             Button(page, g.T("Главное меню", "Main menu"), x, .08f, portrait ? .87f : .45f, .064f, () => g.Menu(), ink);
         }
@@ -578,11 +616,11 @@ namespace TimeThief
                 enemyImage.color = Color.Lerp(Color.white, red, attackFlash * .65f);
                 bool nextHeavy = g.enemy.data.ability == Ability.HeavyStrike && (g.enemy.attackCount + 1) % 3 == 0;
                 warning.text = (nextHeavy ? g.T("Мощный −", "Heavy −") : g.T("Удар −", "Strike −")) + g.enemy.NextStrikeDamage.ToString("0.0") + "\n" + g.T("через ", "in ") + Mathf.Max(0, g.enemy.timer).ToString("0.0") + g.T(" с", " s");
-                warning.color = g.enemy.Telegraph ? Hex("ffd084") : cream;
+                warning.color = g.enemy.Telegraph ? Hex("ffd084") : TextColor(cream);
                 if (combatBanner)
                 {
                     combatBanner.gameObject.SetActive(g.state == GameState.Fighting && Time.unscaledTime < combatUntil);
-                    combatBanner.color = lastCombatColor;
+                    combatBanner.color = SurfaceColor(lastCombatColor);
                     combatMessage.text = lastCombatMessage;
                 }
                 buffText.text = g.T("Возврат ", "Recover ") + (g.enemy.RecoveryFraction * 100).ToString("0") + "%" + (g.shop.buffs.Count > 0 ? " · " + g.shop.buffs.Count + g.T(" усил.", " buffs") : "");

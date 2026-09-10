@@ -65,7 +65,7 @@ class ModelChecks {
   // Counter-element tutorial, with a human-sized response delay.
   for(int level=1;level<=5;level++){game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,level,3));bool magic=!enemy.UsesMagic;for(int frame=0;frame<900&&game.IsFighting;frame++){enemy.DrainPlayer(1f/60);if(game.player.CurrentTime<=0){game.Lose();break;}enemy.Tick(1f/60);if(frame>=30){if(magic)enemy.Hit(true,1f/60);else if(frame%20==0)enemy.Hit(false);}}Check(game.won,"tutorial winnable using indicated counter: "+level);}
   game=new GameManager{config=c};game.player.CritChance=0;game.player.MaxTime=game.player.CurrentTime=100;
-  enemy=new EnemyController(game,EnemyGenerator.Generate(c,25,1));enemy.data.ability=Ability.None;enemy.data.attackType=AttackType.Magic;enemy.data.condition=BattleCondition.None;enemy.time=enemy.data.maxTime*.5f+.1f;enemy.timer=.1f;
+  enemy=new EnemyController(game,EnemyGenerator.Generate(c,25,1));enemy.data.ability=Ability.None;enemy.data.attackType=AttackType.Magic;enemy.data.condition=BattleCondition.QuietHour;enemy.time=enemy.data.maxTime*.5f+.1f;enemy.timer=.1f;
   enemy.Hit(false);Check(enemy.bossPhase2&&game.ui.phases==1&&!enemy.UsesMagic&&enemy.timer>=.85f,"boss phase changes element once with reaction time");
   Check(Math.Abs(enemy.RecoveryFraction-.45f)<.0001&&enemy.Defense(false)==.9f,"boss second phase recovery and resistance");
   before=enemy.time;int hits=enemy.physicalHits;enemy.Hit(false);Check(enemy.time==before&&enemy.physicalHits==hits,"same-frame duplicate taps rejected");

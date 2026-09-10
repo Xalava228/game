@@ -52,4 +52,11 @@ GameManager управляет состояниями. PlayerStats отвеча�
 
 **Time Thief → Run Core Checks** проверяет генерацию 4400 встреч, высокие уровни, ограничения времени, магазин, длительность усилений и три карты боссов. `node tools/test-sdk.cjs` проверяет рекламу и паузы без настоящих показов.
 
-Векторные исходники: `assets/vector`. Скрипты `tools/art.cjs` и `tools/boss-art.cjs` создают игровые PNG через resvg. Это самостоятельно написанные SVG, а не системные иконки. Шрифт Nunito распространяется по SIL Open Font License; лицензия лежит рядом с TTF.
+Векторные исходники: `assets/vector`. Персонажи и логотип: `assets/raster`, промпты: `assets/prompts`. Это сгенерированные встроенным imagegen PNG с альфа-каналом. Unity импортирует обычных персонажей до 512 px, боссов и Маятницу до 1024 px, с mipmaps и trilinear-фильтрацией. SVG используются для собственных иконок и рамок. `tools/art.cjs` и `tools/boss-art.cjs` сохраняют приоритет готовых PNG; `tools/ui-art.cjs` обновляет оформление. Nunito и Alegreya SC распространяются по SIL OFL, лицензии рядом с TTF.
+
+
+## Баланс и проверки MVP
+
+GameConfig содержит minimumTapInterval, bossPhaseRecoveryFactor, timePressure/timeCurve, powerPressure/powerCurve и cooldownPressure. Изменяйте их в Inspector и выполняйте обычную Build, сохраняя свои параметры. Метод Prepare обновляет поставляемый контент и импорты, поэтому нужен при восстановлении проекта или добавлении ресурсов.
+
+`tools/model-checks.ps1` воспроизводит portable-проверки и 48 симуляций без Unity UI. Браузерные сценарии: `tools/browser-checks.cjs`, `browser-layout.cjs`, `browser-experience.cjs`, `browser-touch.cjs`, `browser-platform.cjs`, `browser-mvp.cjs`. Они используют настоящий WebGL и изолированные сохранения браузера. Упаковка проверяется `tools/verify-release.py`.

@@ -51,7 +51,7 @@ namespace TimeThief.Editor
                 t.textureCompression = TextureImporterCompression.Uncompressed;
                 t.maxTextureSize = painted ? (Path.GetFileName(file).StartsWith("boss-") || file.EndsWith("witch.png") ? 1024 : 512) : 2048;
                 t.filterMode = painted ? FilterMode.Trilinear : FilterMode.Bilinear;
-                if (file.EndsWith("panel.png"))
+                if (file.EndsWith("panel.png") || file.EndsWith("frame-line.png"))
                     t.spriteBorder = new Vector4(24, 24, 24, 24);
                 t.SaveAndReimport();
             }
@@ -84,6 +84,23 @@ namespace TimeThief.Editor
                 Debug.Log("Font atlas ready. Missing optional glyphs: " + missing);
             }
 
+            string titlePath = ResourcesPath + "Fonts/Alegreya SDF.asset";
+            if (!AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(titlePath))
+            {
+                var source = AssetDatabase.LoadAssetAtPath<Font>(ResourcesPath + "Fonts/AlegreyaSC-Bold.ttf");
+                var title = TMP_FontAsset.CreateFontAsset(source, 72, 8, GlyphRenderMode.SDFAA, 2048, 2048, AtlasPopulationMode.Dynamic, false);
+                title.name = "Alegreya SDF";
+                string chars = "";
+                for (int i = 32; i < 127; i++) chars += (char)i;
+                for (int i = 0x400; i <= 0x45f; i++) chars += (char)i;
+                title.TryAddCharacters(chars + "−–—…·Ёё«»", out string missing);
+                title.atlasPopulationMode = AtlasPopulationMode.Static;
+                AssetDatabase.CreateAsset(title, titlePath);
+                AssetDatabase.AddObjectToAsset(title.material, title);
+                foreach (var tex in title.atlasTextures) AssetDatabase.AddObjectToAsset(tex, title);
+                EditorUtility.SetDirty(title);
+                Debug.Log("Title font atlas ready. Missing optional glyphs: " + missing);
+            }
             TMP_Settings.defaultFontAsset = font;
             TMP_Settings.defaultSpriteAsset = null;
             TMP_Settings.enableEmojiSupport = false;
@@ -183,7 +200,7 @@ namespace TimeThief.Editor
             }
             PlayerSettings.companyName = "Xalava";
             PlayerSettings.productName = "TimeThief";
-            PlayerSettings.bundleVersion = "1.2.0";
+            PlayerSettings.bundleVersion = "1.4.0";
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.colorSpace = ColorSpace.Gamma;
             PlayerSettings.defaultScreenWidth = 1600;

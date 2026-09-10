@@ -1,0 +1,14 @@
+{
+  "method": "Production combat classes; 12 seeds, 3/5 taps per second, 350ms element reaction, 90s battle ceiling; automatic gifts in both modes, purchases only in shop mode.",
+  "runs": 48,
+  "noShop": {
+    "min": 39,
+    "max": 112
+  },
+  "shop": {
+    "min": 109,
+    "max": 300,
+    "reached250": 6
+  },
+  "limitation": "Deterministic simulation with perfect element knowledge; human playtesting remains necessary."
+}
