@@ -200,7 +200,7 @@ namespace TimeThief.Editor
             }
             PlayerSettings.companyName = "Xalava";
             PlayerSettings.productName = "TimeThief";
-            PlayerSettings.bundleVersion = "1.4.0";
+            PlayerSettings.bundleVersion = "1.4.1";
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.colorSpace = ColorSpace.Gamma;
             PlayerSettings.defaultScreenWidth = 1600;

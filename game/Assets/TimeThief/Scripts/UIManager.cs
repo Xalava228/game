@@ -282,7 +282,7 @@ namespace TimeThief
             var e = g.enemy?.data;
             string name = e == null ? "" : g.English ? e.nameEn : e.nameRu;
             var heading = Panel(battle, .5f, .872f, portrait ? .97f : .63f, .095f, cream);
-            var tag = Panel(battle, .45f, .953f, portrait ? .47f : .20f, .038f, ink);
+            var tag = Panel(battle, .5f, .953f, portrait ? .37f : .20f, .038f, ink);
             Text(tag.transform, g.T("УРОВЕНЬ ", "LEVEL ") + g.level, .5f, .5f, .94f, .95f, 16, cream);
             var nameText = Text(heading.transform, name, .5f, .73f, .94f, .47f, portrait ? 25 : 30);
             if (titleFont) nameText.font = titleFont;
