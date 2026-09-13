@@ -25,6 +25,37 @@
  api.ready=()=>{if(api.readyCalled)return;api.readyCalled=true;document.getElementById('loading').hidden=true;try{api.sdk?.features?.LoadingAPI?.ready();}catch(e){console.warn(e);}pause('visibility',document.hidden);sync();};
  api.gameplay=value=>{api.wantsPlay=value;sync();};
  api.save=json=>{if(!valid(json))return;api.saved=json;try{localStorage.setItem(key,json);}catch(e){console.warn('Browser storage is unavailable',e);}pendingCloud=true;if(!cloudTimer)cloudTimer=setTimeout(cloudSave,12000);};
+ let rankBusy=false,rankCache=null,rankCachedAt=0;
+ api.leaderboard=async()=>{
+  const name=window.TimeThiefPlatformConfig?.leaderboardName;
+  const reply=data=>send('OnLeaderboard',JSON.stringify(data));
+  if(!name||!api.sdk?.leaderboards){reply({status:'unavailable'});return;}
+  if(rankBusy)return;
+  if(rankCache&&Date.now()-rankCachedAt<30000){reply(rankCache);return;}
+  rankBusy=true;
+  try{
+   const lb=api.sdk.leaderboards;
+   let own=null;
+   const canSubmit=await bounded(api.sdk.isAvailableMethod('leaderboards.setScore'),6000);
+   if(canSubmit){
+    let known=false;
+    try{own=await bounded(lb.getPlayerEntry(name),6000);known=true;}
+    catch(e){if(e?.code==='LEADERBOARD_PLAYER_NOT_PRESENT')known=true;}
+    const best=Math.max(0,Math.min(10000000,Math.floor(valid(api.saved)?.bestLevel||0)));
+    // Never replace a higher server result after a local save reset.
+    if(known&&best>(own?.score||0)){
+     await bounded(lb.setScore(name,best),6000);
+     own=await bounded(lb.getPlayerEntry(name),6000);
+    }
+   }
+   const data=await bounded(lb.getEntries(name,{quantityTop:5,includeUser:false}),6000);
+   const entries=(data.entries||[]).slice(0,5);
+   if(own&&!entries.some(e=>e.rank===own.rank))entries.push(own);
+   rankCache={status:'ok',entries:entries.map(e=>({rank:e.rank,score:e.score,name:String(e.player?.publicName||'').slice(0,30)}))};
+   rankCachedAt=Date.now();reply(rankCache);
+  }catch(e){reply({status:'unavailable'});console.warn('Leaderboard unavailable',e);}
+  finally{rankBusy=false;}
+ };
  api.ad=rewarded=>{
   if(!api.sdk||api.adBusy){send('OnAdDone','0');return;}api.adBusy=true;sync();let earned=false,closed=false,opened=false;
   const finish=()=>{if(closed)return;closed=true;clearTimeout(watchdog);api.adBusy=false;send('OnAdDone',earned?'1':'0');sync();};

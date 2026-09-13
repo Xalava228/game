@@ -7,7 +7,7 @@ import zipfile
 
 repo = Path(__file__).resolve().parent.parent
 build = repo / 'Builds' / 'WebGL'
-archive = Path('D:/Game/Release/TimeThief-Yandex-1.4.1.zip')
+archive = Path('D:/Game/Release/TimeThief-Yandex-1.6.0.zip')
 expected = {str(p.relative_to(build)).replace('\\', '/'): p for p in build.rglob('*') if p.is_file()}
 with zipfile.ZipFile(archive) as z:
     actual = {n for n in z.namelist() if not n.endswith('/')}
@@ -22,7 +22,7 @@ with zipfile.ZipFile(archive) as z:
     assert z.read('sdk-bridge.js') == (repo / 'game/Assets/WebGLTemplates/TimeThief/sdk-bridge.js').read_bytes()
     assert z.read('icon.png') == (repo / 'game/Assets/TimeThief/Resources/Art/logo.png').read_bytes()
     html = z.read('index.html').decode('utf-8')
-    assert "productVersion:'1.4.1'" in html
+    assert "productVersion:'1.6.0'" in html
     referenced = set(re.findall(r'Build/[a-zA-Z0-9.\-]+', html))
     assert len(referenced) == 4 and referenced.issubset(actual), 'HTML references missing Unity files'
 result = {'archive': str(archive), 'bytes': archive.stat().st_size,

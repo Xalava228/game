@@ -16,7 +16,7 @@ namespace UnityEngine {
   public static float Min(float a,float b)=>Math.Min(a,b);public static int Min(int a,int b)=>Math.Min(a,b);
   public static float Max(float a,float b)=>Math.Max(a,b);public static int Max(int a,int b)=>Math.Max(a,b);
   public static float Clamp(float v,float a,float b)=>Math.Clamp(v,a,b);public static float Sqrt(float v)=>MathF.Sqrt(v);
-  public static float Sin(float v)=>MathF.Sin(v);public static float Pow(float a,float b)=>MathF.Pow(a,b);
+  public static float Cos(float v)=>MathF.Cos(v);public static float Sin(float v)=>MathF.Sin(v);public static float Pow(float a,float b)=>MathF.Pow(a,b);
   public static float Log(float v)=>MathF.Log(v);public static float Log(float v,float b)=>MathF.Log(v,b);
   public static int RoundToInt(float v)=>(int)MathF.Round(v);public static int FloorToInt(float v)=>(int)MathF.Floor(v);
  }
@@ -32,7 +32,7 @@ namespace TimeThief {
 class ModelChecks {
  static int checks;
  static void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
- public static GameConfig Config(){var c=new GameConfig();c.enemies=Enumerable.Range(0,16).Select(i=>new EnemyData{artKey="enemy"+i,attackType=i==6||i==2||i==4||i==9||i==10||i==12||i==13?AttackType.Magic:AttackType.Physical,ability=new[]{Ability.None,Ability.Accelerate,Ability.PulseShield,Ability.Leech,Ability.MagicSurge,Ability.FinalHour,Ability.None,Ability.Heat,Ability.Thorns,Ability.Accelerate,Ability.PulseShield,Ability.HeavyStrike,Ability.Regenerate,Ability.SwitchDefense,Ability.MagicSurge,Ability.Thorns}[i],enemySprite=new UnityEngine.Sprite()}).ToArray();c.bosses=Enumerable.Range(0,10).Select(i=>new BossData{artKey="boss-"+i,specialAbilityType=(Ability)(i+1),bossSprite=new UnityEngine.Sprite(),attackType=(AttackType)(i%2)}).ToArray();return c;}
+ public static GameConfig Config(){var c=new GameConfig();c.enemies=Enumerable.Range(0,16).Select(i=>new EnemyData{artKey="enemy"+i,attackType=i==6||i==2||i==4||i==9||i==10||i==12||i==13?AttackType.Magic:AttackType.Physical,ability=new[]{Ability.None,Ability.Accelerate,Ability.PulseShield,Ability.Leech,Ability.MagicSurge,Ability.FinalHour,Ability.None,Ability.Heat,Ability.Thorns,Ability.Accelerate,Ability.PulseShield,Ability.HeavyStrike,Ability.Regenerate,Ability.SwitchDefense,Ability.MagicSurge,Ability.Thorns}[i],enemySprite=new UnityEngine.Sprite()}).ToArray();c.bosses=Enumerable.Range(0,10).Select(i=>new BossData{artKey="boss-"+(i+1).ToString("D2"),specialAbilityType=(Ability)(i+1),bossSprite=new UnityEngine.Sprite(),attackType=(AttackType)(i%2)}).ToArray();return c;}
  static void Main(){var c=Config();
   var p=new PlayerStats{CurrentTime=4.9f};Check(Math.Abs(p.AddTime(1)-.1f)<.0001,"receiver cap");Check(p.LoseTime(100)==5&&p.CurrentTime==0,"overkill cap");Check(PlayerStats.Reduced(2,100,10)>0,"defense nonnegative");
   for(int s=1;s<=4;s++)for(int l=1;l<=1100;l++){var e=EnemyGenerator.Generate(c,l,s);Check(e.maxTime>0&&float.IsFinite(e.maxTime)&&e.cooldown>=c.minimumCooldown,"finite difficulty");Check(!(e.physicalDefense>.35f&&e.magicDefense>.35f),"opposing defenses");Check(e.modifiers.Distinct().Count()==e.modifiers.Length,"unique modifiers");}
@@ -43,7 +43,7 @@ class ModelChecks {
   Check(Math.Abs(game.ui.taken-(5-game.player.CurrentTime))<.0001,"damage notice uses actual removed time");
   game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,125,1));enemy.data.ability=Ability.HeavyStrike;enemy.data.attackType=AttackType.Magic;enemy.attackCount=2;enemy.timer=0;enemy.Tick(.01f);Check(game.ui.heavy&&game.ui.magic&&game.ui.taken>0,"third heavy strike is identified with its damage type");
   game=new GameManager{config=c};game.player.Attack=.01f;enemy=new EnemyController(game,EnemyGenerator.Generate(c,175,1));enemy.data.ability=Ability.Thorns;for(int i=0;i<4;i++){enemy.Tick(.13f);enemy.Hit(false);}Check(game.ui.reflected&&game.ui.taken>0&&!game.ui.heavy,"reflected fourth tap has distinct feedback");
-  var shop=new ShopManager{shards=100};p=new PlayerStats();Check(shop.Buy(0,p)&&p.MaxTime==6,"shop max time");Check(shop.Buy(1,p)&&Math.Abs(p.Attack-1.15)<.001,"shop attack");Check(shop.Buy(2,p)&&!shop.Buy(2,p),"unique buffs");shop.EndBattle();shop.EndBattle();Check(shop.Has(BuffType.Armor),"buff after 2 battles");shop.EndBattle();Check(!shop.Has(BuffType.Armor),"buff expires at 3");Check(RewardManager.Choices(1,25,true).Select(r=>r.stat).Distinct().Count()==3,"three different gifts");
+  var shop=new ShopManager();p=new PlayerStats{MaxTime=100,CurrentTime=100};Check(shop.Buy(0,p)&&p.MaxTime==101&&Math.Abs(p.CurrentTime-99.15f)<.001f,"shop max time");Check(shop.Buy(1,p)&&Math.Abs(p.Attack-1.15)<.001,"shop attack");Check(shop.Buy(2,p)&&p.Armor==3,"permanent armor");Check(shop.Buy(3,p)&&p.MagicResistance==3,"permanent magic guard");Check(Math.Abs(shop.Cost(2)-1.13f)<.0001f&&shop.Buy(2,p)&&p.Armor==6,"scaling armor purchase");Check(shop.Buy(4,p)&&!shop.Buy(4,p),"unique temporary buffs");shop.buffs.Add(new ActiveBuff{type=BuffType.Armor,remainingBattles=3});shop.EndBattle();shop.EndBattle();Check(shop.Has(BuffType.Armor),"buff after 2 battles");shop.EndBattle();Check(!shop.Has(BuffType.Armor)&&p.Armor==6&&p.MagicResistance==3,"legacy buff expires but purchases persist");Check(new ShopManager{maxTimePurchases=100000}.Cost(0)>0,"large purchase count cannot overflow price");Check(RewardManager.Choices(1,25,true).Select(r=>r.stat).Distinct().Count()==3,"three different gifts");
 
   for(int seed=1;seed<=20;seed++)for(int level=2;level<=1100;level++){
    var a=EnemyGenerator.Generate(c,level-1,seed);var b=EnemyGenerator.Generate(c,level,seed);
@@ -66,7 +66,7 @@ class ModelChecks {
   for(int level=1;level<=5;level++){game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,level,3));bool magic=!enemy.UsesMagic;for(int frame=0;frame<900&&game.IsFighting;frame++){enemy.DrainPlayer(1f/60);if(game.player.CurrentTime<=0){game.Lose();break;}enemy.Tick(1f/60);if(frame>=30){if(magic)enemy.Hit(true,1f/60);else if(frame%20==0)enemy.Hit(false);}}Check(game.won,"tutorial winnable using indicated counter: "+level);}
   game=new GameManager{config=c};game.player.CritChance=0;game.player.MaxTime=game.player.CurrentTime=100;
   enemy=new EnemyController(game,EnemyGenerator.Generate(c,25,1));enemy.data.ability=Ability.None;enemy.data.attackType=AttackType.Magic;enemy.data.condition=BattleCondition.QuietHour;enemy.time=enemy.data.maxTime*.5f+.1f;enemy.timer=.1f;
-  enemy.Hit(false);Check(enemy.bossPhase2&&game.ui.phases==1&&!enemy.UsesMagic&&enemy.timer>=.85f,"boss phase changes element once with reaction time");
+  enemy.Hit(false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.bossPhase2&&game.ui.phases==1&&!enemy.UsesMagic&&enemy.timer>=.85f,"boss phase changes element once with reaction time");
   Check(Math.Abs(enemy.RecoveryFraction-.45f)<.0001&&enemy.Defense(false)==.9f,"boss second phase recovery and resistance");
   before=enemy.time;int hits=enemy.physicalHits;enemy.Hit(false);Check(enemy.time==before&&enemy.physicalHits==hits,"same-frame duplicate taps rejected");
   enemy.DrainPlayer(30);enemy.Tick(.13f);enemy.Hit(true,.01f);Check(game.ui.phases==1&&enemy.bossPhase2,"healing above half cannot reset boss phase");
@@ -76,6 +76,24 @@ class ModelChecks {
    float expected=enemy.NextStrikeDamage;bool expectedMagic=enemy.UsesMagic;enemy.Tick(.01f);
    Check(Math.Abs(game.ui.taken-expected)<.0001&&game.ui.magic==expectedMagic,"forecast matches actual strike: "+ability);
   }
+  Check(!new ShopManager().Buy(1,new PlayerStats{CurrentTime=1.64f}),"cannot spend last life second");
+  p=new PlayerStats{CurrentTime=1.65f};Check(new ShopManager().Buy(1,p)&&Math.Abs(p.CurrentTime-1)<.0001f,"exact one-second reserve allowed");
+  p=new PlayerStats{CurrentTime=4};shop=new ShopManager{shards=999};shop.Buy(0,p);Check(Math.Abs(p.CurrentTime-3.15f)<.001f&&p.MaxTime==6&&shop.shards==999,"capacity spends life with no refund; legacy shards cannot pay");
+  for(int n=1;n<=10;n++){
+   game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,n*25,1));
+   Check(BossRules.Kind(enemy)==n&&BossRules.Hint(enemy,false).Length>25&&BossRules.Hint(enemy,true).Length>25,"boss has distinct localized rule "+n);
+   if(BossRules.HasTarget(enemy)){Check(BossRules.Multiplier(enemy,false,1,0,0)==.18f,"off-target damage reduced "+n);Check(BossRules.InTarget(enemy,BossRules.X(enemy),BossRules.Y(enemy)),"overlay and hit box agree "+n);}
+  }
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,50,1));
+  for(int n=0;n<3;n++)BossRules.Multiplier(enemy,false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.bossWindow==3&&enemy.bossStage==0,"portal seals open core after three ordered targets");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,75,1));float side=BossRules.X(enemy);BossRules.Multiplier(enemy,false,1,side,BossRules.Y(enemy));Check(side!=BossRules.X(enemy),"twin clock switches target on hit");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,100,1));for(int n=0;n<3;n++)BossRules.Multiplier(enemy,false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.bossWindow==4&&BossRules.Y(enemy)==.72f,"broken roots expose crown");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,125,1));float closed=BossRules.Multiplier(enemy,false,1,.5f,.5f);BossRules.AfterStrike(enemy);Check(BossRules.Multiplier(enemy,false,1,.5f,.5f)>closed*5,"forge opens only after strike");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,150,1));side=BossRules.X(enemy);enemy.elapsed=1;Check(side!=BossRules.X(enemy),"moon moves continuously");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,175,1));enemy.timer=.2f;BossRules.Multiplier(enemy,false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.timer>=1&&enemy.bossWindow==1,"stinger interrupts imminent strike");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,200,1));closed=BossRules.Multiplier(enemy,false,1,.5f,.5f);enemy.elapsed=5;Check(BossRules.Multiplier(enemy,false,1,.5f,.5f)<closed*.1f,"whale exhale shields maw");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,225,1));for(int n=0;n<7;n++)BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossWindow>0,"phoenix overheats under spam");BossRules.Tick(enemy,3);Check(enemy.bossWindow==0&&enemy.bossProgress<.5f,"pause cools phoenix");
+  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,250,1));for(int n=0;n<4;n++)BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossStage==1,"bell accepts only one seal per beat");enemy.elapsed=2;BossRules.Multiplier(enemy,false,1,.5f,.5f);enemy.elapsed=4;BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossWindow==3,"three distinct beats open bell");
   Console.WriteLine(checks+" portable model checks passed. Production generation/combat/stats/shop/reward code; math/assets adapter only. Unity runtime integration is a separate check.");
  }
 }

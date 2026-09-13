@@ -77,7 +77,7 @@ namespace TimeThief
         MagicCandy,
         Critical,
         Freeze,
-        DoubleShards
+        DoubleTime
     }
 
     public enum BattleCondition

@@ -1,0 +1,30 @@
+{
+  "screenshots": 16,
+  "videos": [
+    {
+      "file": "ru-desktop-gameplay.mp4",
+      "width": 1920,
+      "height": 1080,
+      "duration": 26.431,
+      "bytes": 4526335,
+      "type": "video",
+      "recordingFrames": 444,
+      "combatFraction": 0.7517238794783391,
+      "decoded": true,
+      "audioRms": 0.05815237252310249
+    },
+    {
+      "file": "ru-mobile-gameplay.mp4",
+      "width": 1080,
+      "height": 1920,
+      "duration": 26.428,
+      "bytes": 5135040,
+      "type": "video",
+      "recordingFrames": 389,
+      "combatFraction": 0.7695522837669918,
+      "decoded": true,
+      "audioRms": 0.05426231592936401
+    }
+  ],
+  "guideFields": 12
+}

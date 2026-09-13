@@ -200,7 +200,7 @@ namespace TimeThief.Editor
             }
             PlayerSettings.companyName = "Xalava";
             PlayerSettings.productName = "TimeThief";
-            PlayerSettings.bundleVersion = "1.4.1";
+            PlayerSettings.bundleVersion = "1.5.0";
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.colorSpace = ColorSpace.Gamma;
             PlayerSettings.defaultScreenWidth = 1600;
@@ -286,7 +286,8 @@ namespace TimeThief.Editor
         {
             checks = 0;
             var c = Resources.Load<GameConfig>("GameConfig");
-            Check(c && c.bosses.Length == 10 && c.enemies.Length == 16, "10 bosses and 16 regular enemies");
+            Check(c, "GameConfig resource loads");
+            Check(c.bosses != null && c.bosses.Length == 10 && c.enemies != null && c.enemies.Length == 16, "10 bosses and 16 regular enemies; actual=" + c.bosses?.Length + "/" + c.enemies?.Length);
             Check(c.bosses.Select(b => b.bossSprite).Distinct().Count() == 10 && !c.bosses.Any(b => c.enemies.Any(e => e.enemySprite == b.bossSprite)), "independent boss sprites");
             Check(Resources.Load<TMP_FontAsset>("Fonts/Nunito SDF").faceInfo.styleName == "Bold", "static bold font for readable UI");
             Check(c.menuMusic && c.normalBattleMusic && c.proceduralBossMusic, "three original music loops assigned");
@@ -318,18 +319,22 @@ namespace TimeThief.Editor
 
             var late = EnemyGenerator.Generate(c, 1000000, 3);
             Check(float.IsFinite(late.maxTime) && late.maxTime < 1e8f, "bounded linear long-run scaling");
-            var shop = new ShopManager{shards = 100};
-            p = new PlayerStats();
-            Check(shop.Buy(0, p) && p.MaxTime == 6, "max-time purchase");
+            var shop = new ShopManager();
+            p = new PlayerStats{CurrentTime=100, MaxTime=100};
+            Check(shop.Buy(0, p) && p.MaxTime == 101 && Mathf.Abs(p.CurrentTime-99.15f)<.001f, "max-time purchase");
             Check(shop.Buy(1, p) && Mathf.Abs(p.Attack - 1.15f) < .001f, "attack purchase");
             Check(!shop.Buy(99, p), "invalid item rejected");
-            Check(shop.Buy(2, p) && shop.Has(BuffType.Armor), "buff purchase");
-            Check(!shop.Buy(2, p), "duplicate buff blocked");
+            Check(shop.Buy(2, p) && p.Armor == 3 && !shop.Has(BuffType.Armor), "permanent player armor");
+            Check(shop.Buy(3, p) && p.MagicResistance == 3, "permanent player magic guard");
+            Check(Mathf.Abs(shop.Cost(2)-1.13f)<.0001f && shop.Buy(2, p) && p.Armor == 6, "defense cost grows with each purchase");
+            Check(shop.Buy(4, p), "temporary buff purchase");
+            shop.buffs.Add(new ActiveBuff { type = BuffType.Armor, remainingBattles = 3 });
+            Check(!shop.Buy(4, p), "duplicate temporary buff blocked");
             shop.EndBattle();
             shop.EndBattle();
             Check(shop.Has(BuffType.Armor), "3-battle buff survives twice");
             shop.EndBattle();
-            Check(!shop.Has(BuffType.Armor), "buff expires on third battle");
+            Check(!shop.Has(BuffType.Armor) && p.Armor == 6 && p.MagicResistance == 3, "legacy buff expires; purchased defense persists");
             var rewards = RewardManager.Choices(1, 25, true);
             Check(rewards.Length == 3 && rewards.Select(r => r.stat).Distinct().Count() == 3, "three distinct boss choices");
             p.CritChance = .74f;

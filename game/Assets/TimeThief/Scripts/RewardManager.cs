@@ -14,7 +14,7 @@ namespace TimeThief
 
     public static class RewardManager
     {
-        public static int Shards(Encounter e) => Mathf.RoundToInt((3 + Mathf.Sqrt(e.level)) * (e.type == EncounterType.Boss ? 8 * (e.boss ? e.boss.rewardMultiplier : 1) : e.type == EncounterType.MiniBoss ? 4 : 1));
+        public static float TimeReward(Encounter e) => e.type == EncounterType.Boss ? 2f : e.type == EncounterType.MiniBoss ? 1.25f : .65f;
         public static Reward[] Choices(int seed, int level, bool boss)
         {
             var r = new System.Random(unchecked(seed + level * 3571));

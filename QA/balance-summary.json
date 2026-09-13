@@ -6,9 +6,9 @@
     "max": 112
   },
   "shop": {
-    "min": 109,
+    "min": 300,
     "max": 300,
-    "reached250": 6
+    "reached250": 24
   },
-  "limitation": "Deterministic simulation with perfect element knowledge; human playtesting remains necessary."
+  "limitation": "Perfect element knowledge and instant weak-point aiming; this is a deterministic regression simulation, not human playtesting."
 }

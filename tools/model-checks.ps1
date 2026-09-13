@@ -15,7 +15,7 @@ $references=@(Get-ChildItem -LiteralPath $runtime.FullName -Filter '*.dll' | For
         '-r:"'+$_.FullName+'"'
     } catch [System.BadImageFormatException] { } # Native runtime support libraries are not C# references.
 })
-$sources=@('GameConfig','PlayerStats','EnemyData','BossData','EnemyGenerator','ShopManager','RewardManager','EnemyController') | ForEach-Object { '"'+(Join-Path $repo ('game\Assets\TimeThief\Scripts\'+$_+'.cs'))+'"' }
+$sources=@('GameConfig','PlayerStats','EnemyData','BossData','EnemyGenerator','ShopManager','RewardManager','EnemyController','BossRules') | ForEach-Object { '"'+(Join-Path $repo ('game\Assets\TimeThief\Scripts\'+$_+'.cs'))+'"' }
 foreach($entry in @('ModelChecks','BalanceChecks')) {
     $assembly=Join-Path $output ($entry+'.dll')
     $response=Join-Path $output ($entry+'.rsp')

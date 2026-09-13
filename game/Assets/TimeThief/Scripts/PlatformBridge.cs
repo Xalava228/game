@@ -6,6 +6,9 @@ namespace TimeThief
 {
     public sealed class PlatformBridge : MonoBehaviour
     {
+        [Serializable] public sealed class RankEntry { public int rank, score; public string name; }
+        [Serializable] public sealed class RankResult { public string status = "unavailable"; public RankEntry[] entries; }
+        public RankResult Ranking { get; private set; } = new RankResult();
         GameManager game;
         Action<bool> adCallback;
         bool busy;
@@ -17,10 +20,28 @@ namespace TimeThief
   [DllImport("__Internal")] static extern string TT_Load();
   [DllImport("__Internal")] static extern string TT_Language();
   [DllImport("__Internal")] static extern int TT_CanAd();
+  [DllImport("__Internal")] static extern void TT_Leaderboard();
 #endif
         public void Init(GameManager g)
         {
             game = g;
+        }
+
+        public void RequestLeaderboard()
+        {
+            Ranking = new RankResult { status = "loading" };
+#if UNITY_WEBGL && !UNITY_EDITOR
+            TT_Leaderboard();
+#else
+            OnLeaderboard("{\"status\":\"unavailable\"}");
+#endif
+        }
+
+        public void OnLeaderboard(string json)
+        {
+            try { Ranking = JsonUtility.FromJson<RankResult>(json) ?? new RankResult(); }
+            catch { Ranking = new RankResult(); }
+            if (game.state == GameState.Waiting) game.ui.Refresh();
         }
 
         public static string Language()

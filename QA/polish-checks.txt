@@ -1,0 +1,1 @@
+12 real WebGL checks passed: permanent defenses, reload, leaderboard, RU/EN startup and menu integration. Alignment is also checked in captured images.

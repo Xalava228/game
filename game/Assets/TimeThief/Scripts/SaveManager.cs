@@ -16,6 +16,8 @@ namespace TimeThief
         public ShopManager shop;
         public float enemyTime, enemyTimer, elapsed;
         public int enemyAttacks, physicalHits;
+        public int economyVersion, bossStage;
+        public float lastTimeReward, lastTimeAwarded, bossProgress, bossWindow;
         public long updatedAt;
     }
 
@@ -47,12 +49,13 @@ namespace TimeThief
                     foreach (float value in d.lastGrowth) validGrowth &= float.IsFinite(value) && value >= 0;
                     if (!validGrowth) d.lastGrowth = null;
                 }
-                if (d.level < 1 || d.level > 10000000 || d.player == null || !d.player.Valid() || d.shop == null || d.shop.shards < 0 || d.shop.maxTimePurchases < 0 || d.shop.maxTimePurchases > 100000 || d.shop.attackPurchases < 0 || d.shop.attackPurchases > 100000 || d.shop.buffs == null || d.shop.buffs.Count > 7 || !float.IsFinite(d.enemyTime) || !float.IsFinite(d.enemyTimer) || !float.IsFinite(d.elapsed))
+                if (d.level < 1 || d.level > 10000000 || d.player == null || !d.player.Valid() || d.shop == null || d.shop.shards < 0 || d.shop.maxTimePurchases < 0 || d.shop.maxTimePurchases > 100000 || d.shop.attackPurchases < 0 || d.shop.attackPurchases > 100000 || d.shop.armorPurchases < 0 || d.shop.armorPurchases > 100000 || d.shop.resistancePurchases < 0 || d.shop.resistancePurchases > 100000 || d.shop.buffs == null || d.shop.buffs.Count > 7 || !float.IsFinite(d.enemyTime) || !float.IsFinite(d.enemyTimer) || !float.IsFinite(d.elapsed))
                     d.activeRun = false;
                 if (d.shop?.buffs != null)
                     foreach (var buff in d.shop.buffs)
                         if (buff == null || (int)buff.type < 0 || (int)buff.type > 6 || buff.remainingBattles < 1 || buff.remainingBattles > 3)
                             d.activeRun = false;
+                MigrateEconomy(d);
                 return d;
             }
             catch
@@ -61,8 +64,30 @@ namespace TimeThief
             }
         }
 
+        public static void MigrateEconomy(SaveData d)
+        {
+            if (d.economyVersion < 2)
+            {
+                // Preserve upgrades and convert legacy balance once, capped by capacity.
+                if (d.player != null && d.player.Valid() && d.player.CurrentTime > 0 && d.shop != null)
+                    d.player.AddTime(Mathf.Max(0, d.shop.shards) * .1f);
+                if (d.shop != null) d.shop.shards = 0;
+                d.lastTimeReward = d.lastReward > 0 ? .65f : 0;
+                d.lastReward = 0;
+                d.economyVersion = 2;
+            }
+            if (!float.IsFinite(d.lastTimeReward) || d.lastTimeReward < 0 || d.lastTimeReward > 4) d.lastTimeReward = 0;
+            if (!float.IsFinite(d.lastTimeAwarded) || d.lastTimeAwarded < 0 || d.lastTimeAwarded > 8) d.lastTimeAwarded = 0;
+            d.bossStage = Mathf.Clamp(d.bossStage, 0, 3);
+            if (!float.IsFinite(d.bossProgress)) d.bossProgress = 0;
+            if (!float.IsFinite(d.bossWindow)) d.bossWindow = 0;
+            d.bossProgress = Mathf.Clamp(d.bossProgress, 0, 100000000);
+            d.bossWindow = Mathf.Clamp(d.bossWindow, 0, 4);
+        }
+
         public static void Write(SaveData d)
         {
+            d.economyVersion = 2;
             d.updatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             string json = JsonUtility.ToJson(d);
 #if UNITY_WEBGL && !UNITY_EDITOR

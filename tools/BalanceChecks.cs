@@ -11,8 +11,8 @@ class BalanceChecks {
    e.Tick(dt);bool nextMode=!e.UsesMagic;
    if(nextMode!=mode){mode=nextMode;actionAfter=e.elapsed+.35f;e.holdSeconds=0;}
    if(e.elapsed<actionAfter)continue;
-   if(mode){e.holdSeconds+=dt;e.Hit(true,dt);}
-   else if(e.elapsed>=nextTap){e.Hit(false);nextTap=e.elapsed+1f/clicks;}
+   if(mode){e.holdSeconds+=dt;e.Hit(true,dt,BossRules.X(e),BossRules.Y(e));}
+   else if(e.elapsed>=nextTap){e.Hit(false,1,BossRules.X(e),BossRules.Y(e));nextTap=e.elapsed+1f/clicks;}
   }
   return g.won;
  }
@@ -28,14 +28,14 @@ class BalanceChecks {
    var e=EnemyGenerator.Generate(c,level,seed);
    g.IsFighting=true;g.won=g.lost=false;
    if(!Fight(g,new EnemyController(g,e),clicks))return level-1;
-   g.shop.shards+=RewardManager.Shards(e)*(g.shop.Has(BuffType.DoubleShards)?2:1);
-   g.shop.EndBattle();g.player.Grow(c.growth);g.player.AddTime(.35f);Gift(g,e,seed);
+   float award=RewardManager.TimeReward(e)*(g.shop.Has(BuffType.DoubleTime)?2:1);
+   g.shop.EndBattle();g.player.Grow(c.growth);g.player.AddTime(award);Gift(g,e,seed);
    if(shopping){
     var next=EnemyGenerator.Generate(c,level+1,seed);
     for(int buy=0;buy<12;buy++){
      float damage=PlayerStats.Reduced(next.power*1.8f,Math.Min(g.player.Armor,g.player.MagicResistance),10);
-     int item=g.player.MaxTime<Math.Max(6,damage*1.7f+2)||g.player.CurrentTime<g.player.MaxTime*.45f?0:1;
-     if(!g.shop.Buy(item,g.player))break;
+     int item=g.player.MaxTime<Math.Max(6,damage*1.7f+2)||false?0:1;
+     if(g.player.CurrentTime-g.shop.Cost(item)<Math.Max(2,damage*1.2f)||!g.shop.Buy(item,g.player))break;
     }
     if(next.type==EncounterType.Boss){g.shop.Buy(2,g.player);g.shop.Buy(3,g.player);g.shop.Buy(next.attackType==AttackType.Physical?5:4,g.player);}
    }

@@ -15,6 +15,7 @@ namespace TimeThief
         public GameState state = GameState.Waiting;
         public int level = 1, seed, defeated, lastReward;
         public bool reviveUsed, rewardDoubled;
+        public float lastTimeReward, lastTimeAwarded;
         public Reward[] rewards;
         public Reward miniReward;
         bool manualPause, platformPause, adPause;
@@ -114,6 +115,7 @@ namespace TimeThief
             level = save.level;
             defeated = save.defeated;
             lastReward = save.lastReward;
+            lastTimeReward = save.lastTimeReward; lastTimeAwarded = save.lastTimeAwarded;
             miniReward = save.lastGift;
             reviveUsed = save.reviveUsed;
             rewardDoubled = save.rewardDoubled;
@@ -126,6 +128,7 @@ namespace TimeThief
             enemy.attackCount = save.enemyAttacks;
             enemy.physicalHits = save.physicalHits;
             enemy.bossPhase2 = save.bossPhase2;
+            enemy.bossStage = save.bossStage; enemy.bossProgress = save.bossProgress; enemy.bossWindow = save.bossWindow;
             if (save.phase == "Victory")
             {
                 SetState(GameState.Victory);
@@ -162,7 +165,7 @@ namespace TimeThief
             enemy = new EnemyController(this, EnemyGenerator.Generate(config, level, seed));
             miniReward = null;
             rewardDoubled = false;
-            lastReward = 0;
+            lastReward = 0; lastTimeReward = lastTimeAwarded = 0;
             save.bestLevel = Mathf.Max(save.bestLevel, level);
             PlayEncounterMusic();
             SetState(GameState.Intro);
@@ -187,14 +190,13 @@ namespace TimeThief
             ui.input.Cancel();
             defeated++;
             save.totalEnemiesDefeated++;
-            lastReward = RewardManager.Shards(enemy.data) * (shop.Has(BuffType.DoubleShards) ? 2 : 1);
-            shop.shards += lastReward;
+            lastTimeReward = RewardManager.TimeReward(enemy.data) * (shop.Has(BuffType.DoubleTime) ? 2 : 1);
             shop.EndBattle();
             var previous = player.Copy();
             player.Grow(config.growth);
             save.lastGrowth = new float[6];
             for (int i = 0; i < 6; i++) save.lastGrowth[i] = player.Get((Stat)i) - previous.Get((Stat)i);
-            player.AddTime(.35f);
+            lastTimeAwarded = player.AddTime(lastTimeReward);
             music.Sfx(config.victorySound);
             if (enemy.data.type == EncounterType.Boss)
             {
@@ -272,7 +274,7 @@ namespace TimeThief
                 if (ok && !rewardDoubled)
                 {
                     rewardDoubled = true;
-                    shop.shards += lastReward;
+                    lastTimeAwarded += player.AddTime(lastTimeReward);
                     Persist();
                 }
 
@@ -394,7 +396,8 @@ namespace TimeThief
                 save.seed = seed;
                 save.level = level;
                 save.defeated = defeated;
-                save.lastReward = lastReward;
+                save.lastReward = 0;
+                save.lastTimeReward = lastTimeReward; save.lastTimeAwarded = lastTimeAwarded;
                 save.lastGift = miniReward;
                 save.player = player.Copy();
                 save.shop = shop;
@@ -407,6 +410,7 @@ namespace TimeThief
                 save.enemyAttacks = enemy.attackCount;
                 save.physicalHits = enemy.physicalHits;
                 save.bossPhase2 = enemy.bossPhase2;
+                save.bossStage = enemy.bossStage; save.bossProgress = enemy.bossProgress; save.bossWindow = enemy.bossWindow;
             }
 
             SaveManager.Write(save);
