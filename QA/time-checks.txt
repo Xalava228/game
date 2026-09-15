@@ -1,1 +1,1 @@
-22 real WebGL checks passed: time currency, migration, safe reserve, pointer targets, boss mechanics and reload.
+5 real WebGL checks passed: time currency, migration, safe reserve, responsive shop and reload.

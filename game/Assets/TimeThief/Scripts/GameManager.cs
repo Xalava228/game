@@ -128,7 +128,12 @@ namespace TimeThief
             enemy.attackCount = save.enemyAttacks;
             enemy.physicalHits = save.physicalHits;
             enemy.bossPhase2 = save.bossPhase2;
-            enemy.bossStage = save.bossStage; enemy.bossProgress = save.bossProgress; enemy.bossWindow = save.bossWindow;
+            // Old encounters keep life, upgrades and phase; only incompatible boss puzzles reset.
+            if (save.bossRulesVersion == BossRules.Version)
+            {
+                enemy.bossStage = save.bossStage; enemy.bossProgress = save.bossProgress; enemy.bossWindow = save.bossWindow;
+                enemy.bossIdle = save.bossIdle; enemy.bossStoredDamage = save.bossStoredDamage;
+            }
             if (save.phase == "Victory")
             {
                 SetState(GameState.Victory);
@@ -411,6 +416,7 @@ namespace TimeThief
                 save.physicalHits = enemy.physicalHits;
                 save.bossPhase2 = enemy.bossPhase2;
                 save.bossStage = enemy.bossStage; save.bossProgress = enemy.bossProgress; save.bossWindow = enemy.bossWindow;
+                save.bossRulesVersion = BossRules.Version; save.bossIdle = enemy.bossIdle; save.bossStoredDamage = enemy.bossStoredDamage;
             }
 
             SaveManager.Write(save);

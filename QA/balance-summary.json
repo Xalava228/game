@@ -3,12 +3,12 @@
   "runs": 48,
   "noShop": {
     "min": 39,
-    "max": 112
+    "max": 124
   },
   "shop": {
     "min": 300,
     "max": 300,
     "reached250": 24
   },
-  "limitation": "Perfect element knowledge and instant weak-point aiming; this is a deterministic regression simulation, not human playtesting."
+  "limitation": "Perfect element knowledge and instant weak-point aiming; knows when to release forge charges, cool phoenix and wait for rhythm beats. A deterministic regression simulation, not human playtesting."
 }

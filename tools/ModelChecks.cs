@@ -26,7 +26,7 @@ namespace TimeThief {
   public GameConfig config;public PlayerStats player=new PlayerStats();public ShopManager shop=new ShopManager();public bool IsFighting=true;public bool won,lost;public TestUI ui=new TestUI();public TestAudio music=new TestAudio();
   public void Win(){won=true;IsFighting=false;}public void Lose(){lost=true;IsFighting=false;}
  }
- public class TestUI {public float taken;public bool magic,heavy,reflected;public void Hit(float x,float recovered,bool c){}public int phases;public void BossPhase(){phases++;}public void EnemyHit(float t,bool m,bool h=false,bool r=false){taken=t;magic=m;heavy=h;reflected=r;}}
+ public class TestUI {public float taken;public bool magic,heavy,reflected;public void Hit(float x,float recovered,bool c,bool magic=false,bool neutral=false){}public int phases;public void BossPhase(){phases++;}public void EnemyHit(float t,bool m,bool h=false,bool r=false){taken=t;magic=m;heavy=h;reflected=r;}}
  public class TestAudio {public void Sfx(UnityEngine.AudioClip clip){}}
 }
 class ModelChecks {
@@ -79,21 +79,43 @@ class ModelChecks {
   Check(!new ShopManager().Buy(1,new PlayerStats{CurrentTime=1.64f}),"cannot spend last life second");
   p=new PlayerStats{CurrentTime=1.65f};Check(new ShopManager().Buy(1,p)&&Math.Abs(p.CurrentTime-1)<.0001f,"exact one-second reserve allowed");
   p=new PlayerStats{CurrentTime=4};shop=new ShopManager{shards=999};shop.Buy(0,p);Check(Math.Abs(p.CurrentTime-3.15f)<.001f&&p.MaxTime==6&&shop.shards==999,"capacity spends life with no refund; legacy shards cannot pay");
-  for(int n=1;n<=10;n++){
-   game=new GameManager{config=c};enemy=new EnemyController(game,EnemyGenerator.Generate(c,n*25,1));
-   Check(BossRules.Kind(enemy)==n&&BossRules.Hint(enemy,false).Length>25&&BossRules.Hint(enemy,true).Length>25,"boss has distinct localized rule "+n);
-   if(BossRules.HasTarget(enemy)){Check(BossRules.Multiplier(enemy,false,1,0,0)==.18f,"off-target damage reduced "+n);Check(BossRules.InTarget(enemy,BossRules.X(enemy),BossRules.Y(enemy)),"overlay and hit box agree "+n);}
+  // Meaningful behavioral checks for each puzzle and both attack modes.
+  EnemyController Boss(int n) {var g=new GameManager{config=c};g.player.Attack=10;g.player.CritChance=0;g.player.MaxTime=500;g.player.CurrentTime=100;var e=new EnemyController(g,EnemyGenerator.Generate(c,n*25,1));e.time=300;e.timer=10;e.data.condition=BattleCondition.QuietHour;e.data.modifiers=Array.Empty<Modifier>();return e;}
+  void Tap(EnemyController e,float x,float y){e.elapsed+=.2f;BossRules.Tick(e,.2f);e.Hit(false,1,x,y);}
+  for(int n=1;n<=10;n++)foreach(bool magic in new[]{false,true}){
+   enemy=Boss(n);enemy.data.attackType=magic?AttackType.Physical:AttackType.Magic;
+   float initial=enemy.time;
+   for(int f=0;f<60;f++){enemy.elapsed+=1f/60;BossRules.Tick(enemy,1f/60);if(magic||f%12==0)enemy.Hit(magic,magic?1f/60:1,BossRules.X(enemy),BossRules.Y(enemy));}
+   Check(initial-enemy.time>5,"counter damage remains meaningful for boss "+n+" magic="+magic);
+   Check(BossRules.Hint(enemy,false).Length>30&&BossRules.Hint(enemy,true).Length>30,"localized mechanic "+n);
   }
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,50,1));
-  for(int n=0;n<3;n++)BossRules.Multiplier(enemy,false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.bossWindow==3&&enemy.bossStage==0,"portal seals open core after three ordered targets");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,75,1));float side=BossRules.X(enemy);BossRules.Multiplier(enemy,false,1,side,BossRules.Y(enemy));Check(side!=BossRules.X(enemy),"twin clock switches target on hit");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,100,1));for(int n=0;n<3;n++)BossRules.Multiplier(enemy,false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.bossWindow==4&&BossRules.Y(enemy)==.72f,"broken roots expose crown");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,125,1));float closed=BossRules.Multiplier(enemy,false,1,.5f,.5f);BossRules.AfterStrike(enemy);Check(BossRules.Multiplier(enemy,false,1,.5f,.5f)>closed*5,"forge opens only after strike");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,150,1));side=BossRules.X(enemy);enemy.elapsed=1;Check(side!=BossRules.X(enemy),"moon moves continuously");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,175,1));enemy.timer=.2f;BossRules.Multiplier(enemy,false,1,BossRules.X(enemy),BossRules.Y(enemy));Check(enemy.timer>=1&&enemy.bossWindow==1,"stinger interrupts imminent strike");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,200,1));closed=BossRules.Multiplier(enemy,false,1,.5f,.5f);enemy.elapsed=5;Check(BossRules.Multiplier(enemy,false,1,.5f,.5f)<closed*.1f,"whale exhale shields maw");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,225,1));for(int n=0;n<7;n++)BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossWindow>0,"phoenix overheats under spam");BossRules.Tick(enemy,3);Check(enemy.bossWindow==0&&enemy.bossProgress<.5f,"pause cools phoenix");
-  enemy=new EnemyController(new GameManager{config=c},EnemyGenerator.Generate(c,250,1));for(int n=0;n<4;n++)BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossStage==1,"bell accepts only one seal per beat");enemy.elapsed=2;BossRules.Multiplier(enemy,false,1,.5f,.5f);enemy.elapsed=4;BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossWindow==3,"three distinct beats open bell");
+  enemy=Boss(1);for(int i=0;i<6;i++)Tap(enemy,.3f,.5f);Check(enemy.bossStage==3&&!BossRules.HasTarget(enemy),"train loses three plates permanently");
+  BossRules.Tick(enemy,10);Check(enemy.bossStage==3&&BossRules.Multiplier(enemy,true,.1f,0,0)>1.5f,"broken armor never regrows");
+  enemy=Boss(2);
+  for(int i=0;i<3;i++){float x=BossRules.X(enemy),y=BossRules.Y(enemy);Tap(enemy,x,y);Tap(enemy,x,y);if(i<2){Check(BossRules.Multiplier(enemy,true,.1f,x,y)==1,"portal transition protects a held finger");BossRules.Tick(enemy,.7f);}}
+  Check(enemy.bossStage==3&&enemy.bossWindow>3.9f,"three ordered seals open the portal");
+  enemy=Boss(3);for(int i=0;i<3;i++)Tap(enemy,.28f,.5f);float imbalance=enemy.bossProgress;float low=BossRules.Multiplier(enemy,true,.01f,.28f,.5f);
+  for(int i=0;i<3;i++)Tap(enemy,.72f,.5f);Check(imbalance>.75f&&enemy.bossProgress>.25f&&enemy.bossProgress<.75f&&BossRules.Multiplier(enemy,true,.01f,.72f,.5f)>low*2,"twins reward balancing rather than forced alternating targets");
+  enemy=Boss(4);enemy.time=enemy.data.maxTime*.8f;enemy.bossPhase2=true;
+  float hp=enemy.time;enemy.Tick(.1f);Check(enemy.time>hp,"living roots heal the garden");
+  Tap(enemy,.5f,.28f);Tap(enemy,.5f,.28f);hp=enemy.time;enemy.Tick(.5f);Check(enemy.bossWindow>7&&enemy.time==hp,"severed roots disable actual regeneration");
+  BossRules.Tick(enemy,8);hp=enemy.time;enemy.Tick(.1f);Check(enemy.time>hp,"roots regrow after eight seconds");
+  enemy=Boss(5);for(int i=0;i<3;i++)Tap(enemy,.5f,.5f);hp=enemy.time;float stored=enemy.bossStoredDamage;BossRules.Tick(enemy,.3f);Check(enemy.time==hp&&stored>0,"forge cannot detonate before release delay");
+  BossRules.Tick(enemy,.16f);Check(Math.Abs(hp-enemy.time-stored*2)<.001&&enemy.bossProgress==0,"release detonates exactly twice the stored damage");
+  hp=enemy.time;BossRules.Tick(enemy,2);Check(enemy.time==hp,"forge cannot detonate the same charge twice");
+  enemy=Boss(6);for(int i=0;i<60;i++){enemy.elapsed+=1f/60;BossRules.Tick(enemy,1f/60);BossRules.Multiplier(enemy,true,1f/60,BossRules.X(enemy),BossRules.Y(enemy));}
+  Check(enemy.bossProgress>.9f,"continuous orbit tracking builds a lock");BossRules.Tick(enemy,2);Check(enemy.bossProgress<.4f,"orbit lock fades when tracking stops");
+  enemy=Boss(7);enemy.timer=.6f;for(int i=0;i<12;i++){enemy.Tick(1f/60);enemy.Hit(true,1f/60,.68f,.69f);}
+  Check(enemy.attackCount==0&&enemy.timer>1&&enemy.bossWindow>0,"held magic cancels the stinger before its strike");
+  enemy=Boss(8);enemy.DrainPlayer(3);Check(enemy.bossProgress==3,"whale records actual stolen time");float returned=BossRules.Reclaim(enemy,false,1,.5f,.4f);Check(returned==2&&enemy.bossProgress==1,"pearl withdraws from a finite stolen-time bank");Check(BossRules.Reclaim(enemy,false,1,0,0)==0,"off-pearl hits cannot claim stolen time");
+  enemy=Boss(9);for(int i=0;i<12;i++)Tap(enemy,.5f,.5f);Check(enemy.bossStage==1,"phoenix overheats under rapid attacks");float heat=enemy.bossProgress;for(int i=0;i<60;i++){BossRules.Tick(enemy,1f/60);BossRules.Multiplier(enemy,true,1f/60,.5f,.5f);}
+  Check(Math.Abs(enemy.bossProgress-heat)<.001&&enemy.bossStage==1,"phoenix cannot cool while holding");BossRules.Tick(enemy,1.5f);Check(enemy.bossStage==0&&enemy.bossProgress<.35f,"release cools phoenix below safe threshold");
+  enemy=Boss(10);for(int i=0;i<300;i++){enemy.elapsed+=1f/60;BossRules.Tick(enemy,1f/60);BossRules.Multiplier(enemy,true,1f/60,.5f,.5f);}
+  Check(enemy.bossStage==1,"one uninterrupted hold cannot solve three rhythm beats");
+  enemy=Boss(10);for(int i=0;i<3;i++){enemy.elapsed=i*2+.3f;enemy.bossIdle=.5f;BossRules.Multiplier(enemy,true,.01f,.5f,.5f);}
+  Check(enemy.bossStage==3&&enemy.bossWindow==3,"three separate on-beat holds open the bell");
+  enemy=Boss(10);enemy.elapsed=1.1f;enemy.bossStage=2;BossRules.Multiplier(enemy,false,1,.5f,.5f);Check(enemy.bossStage==0,"offbeat gesture breaks the rhythm combo");
+  foreach(int n in new[]{1,2,3,4,6,7,8}){enemy=Boss(n);float x=BossRules.X(enemy),y=BossRules.Y(enemy);Check(BossRules.InTarget(enemy,x+BossRules.Radius*.95f,y)&&BossRules.InTarget(enemy,x,y+BossRules.Radius*.95f),"target accepts inner edge equally on both axes "+n);Check(!BossRules.InTarget(enemy,x,y+BossRules.Radius*1.1f),"target rejects outside edge "+n);}
   Console.WriteLine(checks+" portable model checks passed. Production generation/combat/stats/shop/reward code; math/assets adapter only. Unity runtime integration is a separate check.");
  }
 }

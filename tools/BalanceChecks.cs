@@ -11,6 +11,8 @@ class BalanceChecks {
    e.Tick(dt);bool nextMode=!e.UsesMagic;
    if(nextMode!=mode){mode=nextMode;actionAfter=e.elapsed+.35f;e.holdSeconds=0;}
    if(e.elapsed<actionAfter)continue;
+   int kind=BossRules.Kind(e);
+   if(kind==5&&e.bossProgress>=3||kind==9&&(e.bossStage==1||e.bossProgress>.8f)||kind==10&&e.bossStage<3&&(e.elapsed%2>.7f||e.bossProgress==(int)(e.elapsed/2)+1))continue;
    if(mode){e.holdSeconds+=dt;e.Hit(true,dt,BossRules.X(e),BossRules.Y(e));}
    else if(e.elapsed>=nextTap){e.Hit(false,1,BossRules.X(e),BossRules.Y(e));nextTap=e.elapsed+1f/clicks;}
   }

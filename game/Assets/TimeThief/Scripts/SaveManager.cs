@@ -18,6 +18,8 @@ namespace TimeThief
         public int enemyAttacks, physicalHits;
         public int economyVersion, bossStage;
         public float lastTimeReward, lastTimeAwarded, bossProgress, bossWindow;
+        public int bossRulesVersion;
+        public float bossIdle, bossStoredDamage;
         public long updatedAt;
     }
 
@@ -82,7 +84,9 @@ namespace TimeThief
             if (!float.IsFinite(d.bossProgress)) d.bossProgress = 0;
             if (!float.IsFinite(d.bossWindow)) d.bossWindow = 0;
             d.bossProgress = Mathf.Clamp(d.bossProgress, 0, 100000000);
-            d.bossWindow = Mathf.Clamp(d.bossWindow, 0, 4);
+            d.bossWindow = Mathf.Clamp(d.bossWindow, 0, 8);
+            d.bossIdle = float.IsFinite(d.bossIdle) ? Mathf.Clamp(d.bossIdle, 0, 10) : 0;
+            d.bossStoredDamage = float.IsFinite(d.bossStoredDamage) ? Mathf.Clamp(d.bossStoredDamage, 0, 3000000) : 0;
         }
 
         public static void Write(SaveData d)

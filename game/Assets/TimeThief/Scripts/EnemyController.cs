@@ -10,6 +10,8 @@ namespace TimeThief
         public bool bossPhase2;
         public int bossStage;
         public float bossProgress, bossWindow;
+        public float bossIdle = 10, bossStoredDamage;
+        float magicDamage, magicRecovered, magicFeedbackAt;
         float nextTap;
         readonly GameManager game;
         public bool Telegraph => timer <= game.config.telegraphDuration;
@@ -19,6 +21,7 @@ namespace TimeThief
             data = d;
             time = d.maxTime;
             timer = d.cooldown;
+            if (BossRules.Kind(this) == 3) bossProgress = .5f;
         }
 
         float Cycle => Mathf.Max(2, data.abilityValues.x);
@@ -28,7 +31,7 @@ namespace TimeThief
             {
                 bool magic = data.attackType == AttackType.Magic;
                 if (bossPhase2) magic = !magic;
-                if (data.ability == Ability.SwitchDefense && Mathf.FloorToInt(elapsed / 4) % 2 == 1) magic = !magic;
+                if (data.ability == Ability.SwitchDefense && BossRules.Kind(this) != 3 && Mathf.FloorToInt(elapsed / 4) % 2 == 1) magic = !magic;
                 if (data.ability == Ability.MagicSurge && (attackCount + 1) % 3 == 0) magic = !magic;
                 return magic;
             }
@@ -40,6 +43,7 @@ namespace TimeThief
             float taken = game.player.LoseTime(amount);
             // All time lost to the keeper is transferred, even above its starting reserve.
             time += taken;
+            if (BossRules.Kind(this) == 8) bossProgress = Mathf.Min(1000000, bossProgress + taken);
             return taken;
         }
         public bool Shielded => (data.Has(Modifier.Shield) || data.ability == Ability.PulseShield) && elapsed % Cycle > Cycle - .8f;
@@ -47,9 +51,10 @@ namespace TimeThief
         {
             elapsed += dt;
             BossRules.Tick(this, dt);
+            if (!game.IsFighting) return;
             timer -= dt;
-            if (data.ability == Ability.Regenerate && !Shielded && time < data.maxTime)
-                time = Mathf.Min(data.maxTime, time + Mathf.Min(game.player.Attack * .25f, data.maxTime * .006f) * dt);
+            if (data.ability == Ability.Regenerate && !Shielded && time < data.maxTime && (BossRules.Kind(this) != 4 || bossWindow <= 0))
+                time = Mathf.Min(data.maxTime, time + Mathf.Min(game.player.Attack * (BossRules.Kind(this) == 4 ? .5f : .25f), data.maxTime * .006f) * dt);
             if (timer <= 0)
             {
                 Attack();
@@ -59,6 +64,7 @@ namespace TimeThief
                     speed *= .75f;
                 if (data.ability == Ability.Accelerate)
                     speed *= Mathf.Max(.55f, 1 - attackCount * .055f);
+                if (BossRules.Kind(this) == 1) speed *= 1 + bossStage * .12f;
                 if (data.ability == Ability.FinalHour && time < data.maxTime * .35f)
                     speed *= .65f;
                 timer = Mathf.Max(game.config.minimumCooldown, data.cooldown * speed);
@@ -93,28 +99,29 @@ namespace TimeThief
                 power *= game.player.CritMultiplier;
             power *= 1 - Defense(magic);
             power *= BossRules.Multiplier(this, magic, dt, x, y);
-            float stolen = Mathf.Min(time, Mathf.Max(0, power));
+            float reclaimed = BossRules.Reclaim(this, magic, dt, x, y);
+            float stolen = Mathf.Min(time, Mathf.Max(0, power + reclaimed));
             time -= stolen;
-            float recovered = game.player.AddTime(stolen * RecoveryFraction);
+            float recovered = game.player.AddTime(Mathf.Min(stolen, stolen * RecoveryFraction + reclaimed * (1 - RecoveryFraction)));
+            if (BossRules.Kind(this) == 5) bossStoredDamage = Mathf.Min(game.player.Attack * 3, bossStoredDamage + stolen * .4f);
             if (!magic)
             {
                 physicalHits++;
                 game.ui.Hit(stolen, recovered, crit);
                 game.music.Sfx(crit ? game.config.criticalSound : game.config.physicalHitSound);
             }
-
-            if (time <= .0001f)
+            else
             {
-                game.Win();
-                return;
+                magicDamage += stolen; magicRecovered += recovered;
+                if (elapsed >= magicFeedbackAt)
+                {
+                    game.ui.Hit(magicDamage, magicRecovered, false, true);
+                    magicDamage = magicRecovered = 0;
+                    magicFeedbackAt = elapsed + .3f;
+                }
             }
 
-            if (data.type == EncounterType.Boss && !bossPhase2 && time <= data.maxTime * .5f)
-            {
-                bossPhase2 = true;
-                timer = Mathf.Max(timer, .85f);
-                game.ui.BossPhase();
-            }
+            if (CheckDefeat()) return;
 
             if (!magic && (data.Has(Modifier.Thorny) || data.ability == Ability.Thorns) && physicalHits % 4 == 0)
             {
@@ -123,6 +130,28 @@ namespace TimeThief
                 if (game.player.CurrentTime <= 0)
                     game.Lose();
             }
+        }
+
+        public void Burst(float damage)
+        {
+            if (!game.IsFighting) return;
+            float stolen = Mathf.Min(time, Mathf.Max(0, damage));
+            time -= stolen;
+            float recovered = game.player.AddTime(stolen * RecoveryFraction);
+            game.ui.Hit(stolen, recovered, false, false, true);
+            CheckDefeat();
+        }
+
+        bool CheckDefeat()
+        {
+            if (time <= .0001f) { game.Win(); return true; }
+            if (data.type == EncounterType.Boss && !bossPhase2 && time <= data.maxTime * .5f)
+            {
+                bossPhase2 = true;
+                timer = Mathf.Max(timer, .85f);
+                game.ui.BossPhase();
+            }
+            return false;
         }
 
         public float NextStrikeDamage
@@ -149,7 +178,6 @@ namespace TimeThief
             bool heavy = data.ability == Ability.HeavyStrike && (attackCount + 1) % 3 == 0;
             float damage = NextStrikeDamage;
             attackCount++;
-            BossRules.AfterStrike(this);
             float taken = DrainPlayer(damage);
             game.ui.EnemyHit(taken, magic, heavy);
             game.music.Sfx(magic ? game.config.enemyMagicAttackSound : game.config.enemyPhysicalAttackSound);

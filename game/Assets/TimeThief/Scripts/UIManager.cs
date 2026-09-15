@@ -11,11 +11,11 @@ namespace TimeThief
     {
         GameManager g;
         Canvas canvas;
-        RectTransform root, battle, page, fx, enemyRect;
+        RectTransform root, battle, page, fx, enemyRect, enemyStage;
         TMP_FontAsset font, titleFont;
         Image enemyImage, enemyBar, playerBar;
         TMP_Text enemySeconds, playerSeconds, playerCapacity, warning, buffText, combatMessage, affinity, resistanceHint;
-        Image combatBanner, attackHintIcon, bossTarget;
+        Image combatBanner, attackHintIcon, bossTarget, bossSecondTarget, bossMeter;
         TMP_Text bossRule;
         string lastCombatMessage;
         Color lastCombatColor;
@@ -303,18 +303,29 @@ namespace TimeThief
             if (!portrait) Text(counter.transform, g.T("ТВОЯ АТАКА", "YOUR ATTACK"), .5f, .91f, .9f, .065f, 14, gold);
 
             // The same large stage is used before and during combat.
-            enemyImage = Img(battle, e?.artKey ?? "moth", .5f, portrait ? .489f : .505f, portrait ? .94f : .48f, portrait ? .47f : .62f);
+            var inputSurface = Img(battle, "panel", .5f, portrait ? .489f : .505f, portrait ? .94f : .48f, portrait ? .47f : .62f, Color.clear, false);
+            inputSurface.raycastTarget = true;
+            enemyStage = inputSurface.rectTransform;
+            enemyImage = Img(enemyStage, e?.artKey ?? "moth", .5f, .5f, 1, 1);
             if (e?.sprite) enemyImage.sprite = e.sprite;
-            enemyImage.raycastTarget = true;
-            input = enemyImage.gameObject.AddComponent<EnemyInput>();
+            input = inputSurface.gameObject.AddComponent<EnemyInput>();
             input.Init(g);
             enemyRect = enemyImage.rectTransform;
-            bossTarget = null; bossRule = null;
+            bossTarget = bossSecondTarget = bossMeter = null; bossRule = null;
             if (e != null && e.type == EncounterType.Boss)
             {
-                bossTarget = Img(enemyRect, "weakpoint", .5f, .5f, .27f, .27f);
+                bossTarget = Img(enemyStage, "weakpoint", .5f, .5f, .27f, .27f);
+                if (BossRules.Kind(g.enemy) == 3) bossSecondTarget = Img(enemyStage, "weakpoint", .5f, .5f, .27f, .27f);
                 var rulePanel = Panel(battle, .5f, portrait ? .283f : .225f, portrait ? .94f : .44f, .070f, ink);
-                bossRule = Text(rulePanel.transform, "", .5f, .5f, .92f, .90f, portrait ? 16 : 18, mint);
+                bossRule = Text(rulePanel.transform, "", .5f, .61f, .92f, .65f, portrait ? 15 : 17, mint);
+                var meterRail = Img(rulePanel.transform, "panel", .5f, .16f, .85f, .10f, Hex("485366"), false);
+                bossMeter = Img(meterRail.transform, "panel", .5f, .5f, 1, 1, Hex("93dfc6"), false);
+                bossMeter.type = Image.Type.Filled; bossMeter.fillMethod = Image.FillMethod.Horizontal;
+                if (BossRules.Kind(g.enemy) == 3)
+                {
+                    Img(meterRail.transform, "panel", .25f, .5f, .008f, 2, Color.white, false);
+                    Img(meterRail.transform, "panel", .75f, .5f, .008f, 2, Color.white, false);
+                }
                 if (!portrait) Text(counter.transform, BossRules.Hint(g.enemy, g.English), .5f, .17f, .90f, .22f, 13, muted);
             }
             combatBanner = Panel(battle, .5f, portrait ? .365f : .315f, portrait ? .94f : .44f, .060f, red);
@@ -688,13 +699,24 @@ namespace TimeThief
             {
                 float dt = Time.unscaledDeltaTime;
                 if (bossRule) bossRule.text = BossRules.Status(g.enemy, g.English);
+                if (bossMeter)
+                {
+                    bossMeter.fillAmount = Mathf.Clamp01(BossRules.Meter(g.enemy));
+                    int kind = BossRules.Kind(g.enemy);
+                    bool caution = kind == 9 && g.enemy.bossProgress > .75f || kind == 3 && (g.enemy.bossProgress < .25f || g.enemy.bossProgress > .75f);
+                    bossMeter.color = caution ? Hex("ffb780") : Hex("93dfc6");
+                    if (kind == 10) bossMeter.color = g.enemy.bossStage == 3 || g.enemy.elapsed % 2 < .85f ? Hex("93dfc6") : Hex("647086");
+                }
                 if (bossTarget)
                 {
                     bossTarget.gameObject.SetActive(BossRules.HasTarget(g.enemy));
-                    var target = bossTarget.rectTransform;
-                    var center = new Vector2(BossRules.X(g.enemy), BossRules.Y(g.enemy));
-                    target.anchorMin = center - new Vector2(.135f, .135f);
-                    target.anchorMax = center + new Vector2(.135f, .135f);
+                    PlaceTarget(bossTarget, BossRules.X(g.enemy), BossRules.Y(g.enemy));
+                    bossTarget.color = input && input.Holding && input.OnWeakPoint ? Hex("c1ffec") : Color.white;
+                    if (bossSecondTarget)
+                    {
+                        PlaceTarget(bossSecondTarget, 1 - BossRules.X(g.enemy), .5f);
+                        bossSecondTarget.color = new Color(1, .82f, .55f, .55f);
+                    }
                 }
                 affinity.text = g.enemy.UsesMagic ? g.T("КЛИКАЙ ПО ВРАГУ", "TAP THE ENEMY") : g.T("ЗАЖМИ НА ВРАГЕ", "HOLD ON THE ENEMY");
                 resistanceHint.text = g.enemy.UsesMagic ? g.T("Короткие касания · физ. урон", "Short taps · physical damage") : g.T("Не отпускай · магический урон", "Keep holding · magic damage");
@@ -773,12 +795,21 @@ namespace TimeThief
                 velocity = new Vector2((.5f - at.x) * root.rect.width, -root.rect.height * .3f) });
         }
 
-        public void Hit(float stolen, float recovered, bool critical)
+        void PlaceTarget(Image mark, float x, float y)
+        {
+            float side = Mathf.Min(enemyStage.rect.width, enemyStage.rect.height);
+            var target = mark.rectTransform;
+            target.anchorMin = target.anchorMax = new Vector2(.5f, .5f);
+            target.anchoredPosition = new Vector2((x - .5f) * side, (y - .5f) * side);
+            target.sizeDelta = Vector2.one * (side * BossRules.Radius * 2);
+        }
+
+        public void Hit(float stolen, float recovered, bool critical, bool magic = false, bool neutral = false)
         {
             hit = critical ? 1.6f : 1;
-            Float((critical ? g.T("ТВОЙ КРИТ! −", "YOUR CRIT! −") : "−") + stolen.ToString("0.0") + g.T(" сек", " sec"), critical ? purple : mint, new Vector2(.5f + UnityEngine.Random.Range(-.08f, .08f), .55f), new Vector2(0, 85 * unit));
+            Float((critical ? g.T("ТВОЙ КРИТ! −", "YOUR CRIT! −") : "−") + stolen.ToString(stolen < .1f ? "0.00" : "0.0") + g.T(" сек", " sec"), critical ? purple : mint, new Vector2(.5f + UnityEngine.Random.Range(-.08f, .08f), .55f), new Vector2(0, 85 * unit));
             if (critical) CombatNotice(g.T("ТВОЙ КРИТ: урон ", "YOUR CRIT: damage ") + stolen.ToString("0.00") + g.T(" · тебе +", " · you +") + recovered.ToString("0.00") + g.T(" сек", " sec"), purple);
-            else if (!g.enemy.UsesMagic) CombatNotice(g.T("Клик поглощён на 90% · удерживай для магии", "Tap resisted by 90% · hold to cast magic"), purple);
+            else if (!neutral && magic == g.enemy.UsesMagic) CombatNotice(magic ? g.T("Магия поглощена на 90% · кликай", "Magic resisted by 90% · use taps") : g.T("Клик поглощён на 90% · удерживай для магии", "Tap resisted by 90% · hold to cast magic"), purple);
         }
 
         void CombatNotice(string message, Color color)

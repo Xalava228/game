@@ -21,7 +21,7 @@ const fs=require('fs'),assert=require('assert'),{chromium}=require('D:/Game/Work
   await page.setViewportSize({width:1600,height:900});await page.waitForTimeout(350);
   const b=await page.locator('canvas').boundingBox();
   for(let i=0;i<14&&!after.bossPhase2;i++){
-   const targetX=Math.floor(after.elapsed/3)%2===0?.404:.596;
+   const targetX=.5-.2*Math.min(b.width*.48,b.height*.62)/b.width;
    await page.mouse.move(b.x+b.width*targetX,b.y+b.height*.495);
    if(i===0)await page.mouse.down();await page.waitForTimeout(350);after=await save();
   }

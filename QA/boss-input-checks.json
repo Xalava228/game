@@ -1,0 +1,431 @@
+{
+  "checks": 70,
+  "report": [
+    {
+      "label": "mouse hold deals counter damage to boss 1",
+      "detail": {
+        "damage": 51.078125,
+        "stage": 2,
+        "progress": 0.07250003516674042
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 1 false"
+    },
+    {
+      "label": "holding destroys a train armor plate false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 2",
+      "detail": {
+        "damage": 226.92523193359375,
+        "stage": 3,
+        "progress": 0
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 2 false"
+    },
+    {
+      "label": "one dragging hold opens all three portal seals false",
+      "detail": {
+        "version": 1,
+        "bestLevel": 1,
+        "totalEnemiesDefeated": 0,
+        "totalBossesDefeated": 0,
+        "seed": 1,
+        "level": 50,
+        "defeated": 0,
+        "lastReward": 0,
+        "activeRun": true,
+        "reviveUsed": false,
+        "rewardDoubled": false,
+        "bossPhase2": true,
+        "phase": "Fighting",
+        "player": {
+          "CurrentTime": 471.9716796875,
+          "MaxTime": 500,
+          "Attack": 10,
+          "CritChance": 0,
+          "CritMultiplier": 2,
+          "Armor": 1000,
+          "MagicResistance": 1000
+        },
+        "lastGift": {
+          "stat": 0,
+          "amount": 0,
+          "percent": false
+        },
+        "lastGrowth": [],
+        "shop": {
+          "shards": 0,
+          "maxTimePurchases": 0,
+          "attackPurchases": 0,
+          "armorPurchases": 0,
+          "resistancePurchases": 0,
+          "buffs": []
+        },
+        "enemyTime": 773.1077880859375,
+        "enemyTimer": 1.8217730522155762,
+        "elapsed": 6.803005218505859,
+        "enemyAttacks": 2,
+        "physicalHits": 0,
+        "economyVersion": 2,
+        "bossStage": 3,
+        "lastTimeReward": 0,
+        "lastTimeAwarded": 0,
+        "bossProgress": 0,
+        "bossWindow": 1.2390021085739136,
+        "bossRulesVersion": 2,
+        "bossIdle": 0.032999999821186066,
+        "bossStoredDamage": 0,
+        "updatedAt": 1789448365868
+      }
+    },
+    {
+      "label": "portal progress persists and resumes paused false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 3",
+      "detail": {
+        "damage": 79.27978515625,
+        "stage": 0,
+        "progress": 0.4844000041484833
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 3 false"
+    },
+    {
+      "label": "dragging a held finger balances both faces false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 4",
+      "detail": {
+        "damage": 47.0711669921875,
+        "stage": 0,
+        "progress": 0
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 4 false"
+    },
+    {
+      "label": "holding roots disables healing false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 5",
+      "detail": {
+        "damage": 34.68011474609375,
+        "stage": 0,
+        "progress": 3
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 5 false"
+    },
+    {
+      "label": "releasing a charged hold detonates the forge false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 6",
+      "detail": {
+        "damage": 76.2767333984375,
+        "stage": 0,
+        "progress": 0.9884500503540039
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 6 false"
+    },
+    {
+      "label": "dragging continuously follows the orbit false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 7",
+      "detail": {
+        "damage": 81.4530029296875,
+        "stage": 0,
+        "progress": 0
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 7 false"
+    },
+    {
+      "label": "held magic interrupts the live stinger strike false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 8",
+      "detail": {
+        "damage": 41.9356689453125,
+        "stage": 0,
+        "progress": 0.05000000074505806
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 8 false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 9",
+      "detail": {
+        "damage": 56.71929931640625,
+        "stage": 0,
+        "progress": 0.5935602188110352
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 9 false"
+    },
+    {
+      "label": "mouse hold deals counter damage to boss 10",
+      "detail": {
+        "damage": 175.54364013671875,
+        "stage": 1,
+        "progress": 1
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 10 false"
+    },
+    {
+      "label": "continuous hold counts as only one rhythm gesture false"
+    },
+    {
+      "label": "visible weak-point edge registers during hold false"
+    },
+    {
+      "label": "moving outside the stage pauses damage false",
+      "detail": {
+        "before": 279.5760803222656,
+        "after": 280.02496337890625
+      }
+    },
+    {
+      "label": "returning inside resumes the same held pointer false"
+    },
+    {
+      "label": "short gesture produces exactly one physical hit false"
+    },
+    {
+      "label": "old save keeps run and resets only incompatible puzzle false"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 1",
+      "detail": {
+        "damage": 45.89508056640625,
+        "stage": 1,
+        "progress": 1.7400002479553223
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 1 true"
+    },
+    {
+      "label": "holding destroys a train armor plate true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 2",
+      "detail": {
+        "damage": 205.89093017578125,
+        "stage": 3,
+        "progress": 0
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 2 true"
+    },
+    {
+      "label": "one dragging hold opens all three portal seals true",
+      "detail": {
+        "version": 1,
+        "bestLevel": 1,
+        "totalEnemiesDefeated": 0,
+        "totalBossesDefeated": 0,
+        "seed": 1,
+        "level": 50,
+        "defeated": 0,
+        "lastReward": 0,
+        "activeRun": true,
+        "reviveUsed": false,
+        "rewardDoubled": false,
+        "bossPhase2": true,
+        "phase": "Fighting",
+        "player": {
+          "CurrentTime": 465.0962829589844,
+          "MaxTime": 500,
+          "Attack": 10,
+          "CritChance": 0,
+          "CritMultiplier": 2,
+          "Armor": 1000,
+          "MagicResistance": 1000
+        },
+        "lastGift": {
+          "stat": 0,
+          "amount": 0,
+          "percent": false
+        },
+        "lastGrowth": [],
+        "shop": {
+          "shards": 0,
+          "maxTimePurchases": 0,
+          "attackPurchases": 0,
+          "armorPurchases": 0,
+          "resistancePurchases": 0,
+          "buffs": []
+        },
+        "enemyTime": 794.1380615234375,
+        "enemyTimer": 2.1547727584838867,
+        "elapsed": 6.467003345489502,
+        "enemyAttacks": 2,
+        "physicalHits": 0,
+        "economyVersion": 2,
+        "bossStage": 3,
+        "lastTimeReward": 0,
+        "lastTimeAwarded": 0,
+        "bossProgress": 0,
+        "bossWindow": 1.5880016088485718,
+        "bossRulesVersion": 2,
+        "bossIdle": 0.05000000074505806,
+        "bossStoredDamage": 0,
+        "updatedAt": 1789448449855
+      }
+    },
+    {
+      "label": "portal progress persists and resumes paused true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 3",
+      "detail": {
+        "damage": 81.7171630859375,
+        "stage": 0,
+        "progress": 0.49010002613067627
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 3 true"
+    },
+    {
+      "label": "dragging a held finger balances both faces true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 4",
+      "detail": {
+        "damage": 43.50799560546875,
+        "stage": 0,
+        "progress": 0
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 4 true"
+    },
+    {
+      "label": "holding roots disables healing true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 5",
+      "detail": {
+        "damage": 31.1666259765625,
+        "stage": 0,
+        "progress": 3
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 5 true"
+    },
+    {
+      "label": "releasing a charged hold detonates the forge true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 6",
+      "detail": {
+        "damage": 93.125244140625,
+        "stage": 0,
+        "progress": 0.9884499907493591
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 6 true"
+    },
+    {
+      "label": "dragging continuously follows the orbit true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 7",
+      "detail": {
+        "damage": 78.74578857421875,
+        "stage": 0,
+        "progress": 0
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 7 true"
+    },
+    {
+      "label": "held magic interrupts the live stinger strike true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 8",
+      "detail": {
+        "damage": 39.3338623046875,
+        "stage": 0,
+        "progress": 0.032999999821186066
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 8 true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 9",
+      "detail": {
+        "damage": 53.09991455078125,
+        "stage": 0,
+        "progress": 0.5559402108192444
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 9 true"
+    },
+    {
+      "label": "touch hold deals counter damage to boss 10",
+      "detail": {
+        "damage": 153.07208251953125,
+        "stage": 1,
+        "progress": 1
+      }
+    },
+    {
+      "label": "releasing hold never adds a physical tap 10 true"
+    },
+    {
+      "label": "continuous hold counts as only one rhythm gesture true"
+    },
+    {
+      "label": "visible weak-point edge registers during hold true"
+    },
+    {
+      "label": "moving outside the stage pauses damage true",
+      "detail": {
+        "before": 279.21209716796875,
+        "after": 279.64398193359375
+      }
+    },
+    {
+      "label": "returning inside resumes the same held pointer true"
+    },
+    {
+      "label": "short gesture produces exactly one physical hit true"
+    },
+    {
+      "label": "canceled touch cannot create a phantom tap"
+    },
+    {
+      "label": "old save keeps run and resets only incompatible puzzle true"
+    },
+    {
+      "label": "boss input has no runtime or missing-font errors",
+      "detail": []
+    }
+  ],
+  "errors": []
+}
